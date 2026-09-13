@@ -1,0 +1,6500 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "NexCTF API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/auth/captcha/challenge": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Captcha Challenge",
+        "description": "Issue an ALTCHA challenge for the login and register widgets.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "captcha_challenge_api_v1_auth_captcha_challenge_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Captcha Challenge Api V1 Auth Captcha Challenge Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Register",
+        "operationId": "register_api_v1_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicRegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "**API tokens:** not accepted, this endpoint needs a browser session."
+      }
+    },
+    "/api/v1/auth/token": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login",
+        "operationId": "login_api_v1_auth_token_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_api_v1_auth_token_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "**API tokens:** not accepted, this endpoint needs a browser session."
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Reset Password",
+        "description": "Consume a single-use password reset token and update the user's password.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "reset_password_api_v1_auth_reset_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/verify-email": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Verify Email",
+        "description": "Consume a single-use email verification token and mark the email verified.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "verify_email_api_v1_auth_verify_email_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/resend-verification": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Resend Verification",
+        "description": "Re-send the verification email. Always 204 to avoid account enumeration.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "resend_verification_api_v1_auth_resend_verification_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendVerificationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Forgot Password",
+        "description": "Email a single-use password reset link. Always 204 to avoid enumeration.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "forgot_password_api_v1_auth_forgot_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Logout",
+        "operationId": "logout_api_v1_auth_logout_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "description": "**API tokens:** not accepted, this endpoint needs a browser session."
+      }
+    },
+    "/api/v1/auth/providers/{slug}/authorize": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Oauth Authorize",
+        "operationId": "oauth_authorize_api_v1_auth_providers__slug__authorize_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          },
+          {
+            "name": "redirect_url",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Redirect Url"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "**API tokens:** not accepted, this endpoint needs a browser session."
+      }
+    },
+    "/api/v1/auth/providers/{slug}/callback": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Oauth Callback",
+        "operationId": "oauth_callback_api_v1_auth_providers__slug__callback_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Code"
+            }
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Error"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "**API tokens:** not accepted, this endpoint needs a browser session."
+      }
+    },
+    "/api/v1/challenges": {
+      "get": {
+        "tags": [
+          "Challenges"
+        ],
+        "summary": "List Challenges",
+        "operationId": "list_challenges_api_v1_challenges_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_list_PublicChallengeRead__"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:challenge",
+        "description": "**Required token scope:** `read:challenge`"
+      }
+    },
+    "/api/v1/challenges/{challenge_id}": {
+      "get": {
+        "tags": [
+          "Challenges"
+        ],
+        "summary": "Get Challenge",
+        "operationId": "get_challenge_api_v1_challenges__challenge_id__get",
+        "parameters": [
+          {
+            "name": "challenge_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Challenge Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PublicChallengeDetail_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:challenge",
+        "description": "**Required token scope:** `read:challenge`"
+      }
+    },
+    "/api/v1/challenges/{challenge_id}/{question_id}/submit": {
+      "post": {
+        "tags": [
+          "Challenges"
+        ],
+        "summary": "Submit Answer",
+        "operationId": "submit_answer_api_v1_challenges__challenge_id___question_id__submit_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "challenge_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Challenge Id"
+            }
+          },
+          {
+            "name": "question_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Question Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_SubmitResult_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "write:challenge",
+        "description": "**Required token scope:** `write:challenge`"
+      }
+    },
+    "/api/v1/challenges/{challenge_id}/{question_id}/hints/{hint_id}/unlock": {
+      "post": {
+        "tags": [
+          "Challenges"
+        ],
+        "summary": "Unlock Hint",
+        "operationId": "unlock_hint_api_v1_challenges__challenge_id___question_id__hints__hint_id__unlock_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "challenge_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Challenge Id"
+            }
+          },
+          {
+            "name": "question_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Question Id"
+            }
+          },
+          {
+            "name": "hint_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Hint Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PublicHintRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "write:challenge",
+        "description": "**Required token scope:** `write:challenge`"
+      }
+    },
+    "/api/v1/challenges/{challenge_id}/feedback": {
+      "post": {
+        "tags": [
+          "Challenges"
+        ],
+        "summary": "Submit Feedback",
+        "description": "Rate a challenge the caller's team has fully solved; re-posting edits it.\n\n**Required token scope:** `write:challenge`",
+        "operationId": "submit_feedback_api_v1_challenges__challenge_id__feedback_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "challenge_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Challenge Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PublicFeedbackRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "write:challenge"
+      }
+    },
+    "/api/v1/file/{uuid}/view": {
+      "get": {
+        "tags": [
+          "File"
+        ],
+        "summary": "View Public File",
+        "description": "Redirect to a presigned S3 view URL for a publicly accessible file.\n\n**Required token scope:** `read:challenge`",
+        "operationId": "view_public_file_api_v1_file__uuid__view_get",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:challenge"
+      }
+    },
+    "/api/v1/info": {
+      "get": {
+        "tags": [
+          "info"
+        ],
+        "summary": "Public Info",
+        "operationId": "public_info_api_v1_info_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PublicInfo_"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:content",
+        "description": "**Required token scope:** `read:content`"
+      }
+    },
+    "/api/v1/info/me": {
+      "get": {
+        "tags": [
+          "info"
+        ],
+        "summary": "Me Info",
+        "operationId": "me_info_api_v1_info_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PublicUserRead_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "read:profile",
+        "description": "**Required token scope:** `read:profile`"
+      }
+    },
+    "/api/v1/info/admin": {
+      "get": {
+        "tags": [
+          "info"
+        ],
+        "summary": "Admin Info",
+        "operationId": "admin_info_api_v1_info_admin_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AdminStats_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "read:admin.config",
+        "description": "**Required token scope:** `read:admin.config`"
+      }
+    },
+    "/api/v1/me/tokens": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "List Tokens",
+        "operationId": "list_tokens_api_v1_me_tokens_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/CursorPaginatedResponse_PublicApiTokenRead_"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OffsetPaginatedResponse_PublicApiTokenRead_"
+                    }
+                  ],
+                  "title": "Response List Tokens Api V1 Me Tokens Get",
+                  "discriminator": {
+                    "propertyName": "pagination_type",
+                    "mapping": {
+                      "cursor": "#/components/schemas/CursorPaginatedResponse_PublicApiTokenRead_",
+                      "offset": "#/components/schemas/OffsetPaginatedResponse_PublicApiTokenRead_"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "read:token",
+        "description": "**Required token scope:** `read:token`"
+      },
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Create Token",
+        "operationId": "create_token_api_v1_me_tokens_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicApiTokenCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PublicApiTokenRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "description": "**API tokens:** not accepted, this endpoint needs a browser session."
+      }
+    },
+    "/api/v1/me/tokens/scopes": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "List Grantable Scopes",
+        "description": "List the scopes this user may grant.\n\n**Required token scope:** `read:token`",
+        "operationId": "list_grantable_scopes_api_v1_me_tokens_scopes_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_list_str__"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "read:token"
+      }
+    },
+    "/api/v1/me/tokens/{token_id}": {
+      "delete": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Revoke Token",
+        "operationId": "revoke_token_api_v1_me_tokens__token_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "token_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Token Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "write:token",
+        "description": "**Required token scope:** `write:token`"
+      }
+    },
+    "/api/v1/me/sessions": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "List Sessions",
+        "description": "List the user's live sessions, newest activity first.\n\n**Required token scope:** `read:profile`",
+        "operationId": "list_sessions_api_v1_me_sessions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_list_UserSessionRead__"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "read:profile"
+      },
+      "delete": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Revoke All Sessions",
+        "description": "Sign out every device, including the one making the request.\n\nIncluded so a user who suspects their cookie was stolen can end every\nsession without having to guess which one is the attacker's.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "revoke_all_sessions_api_v1_me_sessions_delete",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/sessions/{session_id}": {
+      "delete": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Revoke One Session",
+        "description": "Sign out one device.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "revoke_one_session_api_v1_me_sessions__session_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/oauth": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "List Oauth Accounts",
+        "description": "Return all OAuth providers linked to the current user's account.\n\n**Required token scope:** `read:profile`",
+        "operationId": "list_oauth_accounts_api_v1_me_oauth_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_list_PublicOAuthAccountRead__"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "read:profile"
+      }
+    },
+    "/api/v1/me/oauth/{account_id}": {
+      "delete": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Unlink Oauth Account",
+        "description": "Unlink an OAuth provider from the current user's account.\n\nRejected when the user has no password and this is their only linked provider,\nwhich would lock them out.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "unlink_oauth_account_api_v1_me_oauth__account_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Account Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/password": {
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Change Password",
+        "description": "Verify the current password, replace it, and log out other sessions.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "change_password_api_v1_me_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordChangeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/totp/setup": {
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Totp Setup",
+        "description": "Generate a new TOTP secret and store it server-side (does not activate it yet).\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "totp_setup_api_v1_me_totp_setup_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_TotpSetupResponse_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/totp/enable": {
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Totp Enable",
+        "description": "Read the provisional secret from Redis, verify the OTP code, and enable TOTP.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "totp_enable_api_v1_me_totp_enable_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TotpEnableRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/totp/disable": {
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Totp Disable",
+        "description": "Verify OTP code and disable TOTP.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "totp_disable_api_v1_me_totp_disable_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TotpDisableRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/team": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Get My Team",
+        "operationId": "get_my_team_api_v1_me_team_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_Union_MyTeamRead__NoneType__"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "read:profile",
+        "description": "**Required token scope:** `read:profile`"
+      },
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Create Team",
+        "operationId": "create_team_api_v1_me_team_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeamCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_MyTeamRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "write:profile",
+        "description": "**Required token scope:** `write:profile`"
+      }
+    },
+    "/api/v1/me/team/join": {
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Join Team",
+        "operationId": "join_team_api_v1_me_team_join_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeamJoinRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_MyTeamRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "write:profile",
+        "description": "**Required token scope:** `write:profile`"
+      }
+    },
+    "/api/v1/me/team/leave": {
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Leave Team",
+        "operationId": "leave_team_api_v1_me_team_leave_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "write:profile",
+        "description": "**Required token scope:** `write:profile`"
+      }
+    },
+    "/api/v1/me/team/invite-code": {
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Rotate Invite Code",
+        "operationId": "rotate_invite_code_api_v1_me_team_invite_code_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_str_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "write:profile",
+        "description": "**Required token scope:** `write:profile`"
+      }
+    },
+    "/api/v1/me/profile": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Get My Profile",
+        "description": "The current user's editable profile: links and custom field values.\n\n**Required token scope:** `read:profile`",
+        "operationId": "get_my_profile_api_v1_me_profile_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_MyProfileRead_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "read:profile"
+      },
+      "put": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Update My Profile",
+        "operationId": "update_my_profile_api_v1_me_profile_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyProfileUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_MyProfileRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "write:profile",
+        "description": "**Required token scope:** `write:profile`"
+      }
+    },
+    "/api/v1/me/team/profile": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Get My Team Profile",
+        "description": "The current user's team profile, as an editable form payload.\n\n**Required token scope:** `read:profile`",
+        "operationId": "get_my_team_profile_api_v1_me_team_profile_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_MyTeamProfileRead_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "read:profile"
+      },
+      "put": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Update My Team Profile",
+        "description": "Any member may edit the team, as any member may already rotate its code.\n\n**Required token scope:** `write:profile`",
+        "operationId": "update_my_team_profile_api_v1_me_team_profile_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyTeamProfileUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_MyTeamProfileRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "write:profile"
+      }
+    },
+    "/api/v1/notification": {
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Get My Notifications",
+        "operationId": "get_my_notifications_api_v1_notification_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PublicNotificationListResponse_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "read:notification",
+        "description": "**Required token scope:** `read:notification`"
+      }
+    },
+    "/api/v1/notification/read": {
+      "post": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Mark Notifications Read",
+        "description": "Record that the user has read all notifications up to now.\n\n**Required token scope:** `write:notification`",
+        "operationId": "mark_notifications_read_api_v1_notification_read_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "write:notification"
+      }
+    },
+    "/api/v1/page": {
+      "get": {
+        "tags": [
+          "Page"
+        ],
+        "summary": "List Published Pages",
+        "description": "Return a list of all published pages (slug, title, nav_placement).\n\n**Required token scope:** `read:content`",
+        "operationId": "list_published_pages_api_v1_page_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_list_PublicPageRead__"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:content"
+      }
+    },
+    "/api/v1/page/{slug}": {
+      "get": {
+        "tags": [
+          "Page"
+        ],
+        "summary": "Get Published Page",
+        "description": "Return a single published page by slug.\n\n**Required token scope:** `read:content`",
+        "operationId": "get_published_page_api_v1_page__slug__get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PublicPageDetail_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:content"
+      }
+    },
+    "/api/v1/plugins/manifest": {
+      "get": {
+        "tags": [
+          "Plugins"
+        ],
+        "summary": "Get Plugin Manifest",
+        "operationId": "get_plugin_manifest_api_v1_plugins_manifest_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PluginManifestEntry"
+                  },
+                  "type": "array",
+                  "title": "Response Get Plugin Manifest Api V1 Plugins Manifest Get"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:content",
+        "description": "**Required token scope:** `read:content`"
+      }
+    },
+    "/api/v1/scoreboard": {
+      "get": {
+        "tags": [
+          "Scoreboard"
+        ],
+        "summary": "Get Scoreboard Endpoint",
+        "operationId": "get_scoreboard_endpoint_api_v1_scoreboard_get",
+        "parameters": [
+          {
+            "name": "bracket",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bracket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PublicScoreboard_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:scoreboard",
+        "description": "**Required token scope:** `read:scoreboard`"
+      }
+    },
+    "/api/v1/scoreboard/history": {
+      "get": {
+        "tags": [
+          "Scoreboard"
+        ],
+        "summary": "Get Scoreboard History Endpoint",
+        "operationId": "get_scoreboard_history_endpoint_api_v1_scoreboard_history_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 25,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "bracket",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bracket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_ScoreboardHistory_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:scoreboard",
+        "description": "**Required token scope:** `read:scoreboard`"
+      }
+    },
+    "/api/v1/scoreboard/team/{team_id}": {
+      "get": {
+        "tags": [
+          "Scoreboard"
+        ],
+        "summary": "Get Team Score Endpoint",
+        "operationId": "get_team_score_endpoint_api_v1_scoreboard_team__team_id__get",
+        "parameters": [
+          {
+            "name": "team_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Team Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PublicTeamScoreDetail_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:scoreboard",
+        "description": "**Required token scope:** `read:scoreboard`"
+      }
+    },
+    "/api/v1/stream": {
+      "get": {
+        "tags": [
+          "SSE"
+        ],
+        "summary": "Event Stream",
+        "description": "Authenticated SSE stream.\n\nEvent types emitted:\n- ``notification``     \u2014 new notification visible to this user\n- ``config_update``    \u2014 admin saved new config values\n- ``event``            \u2014 admin audit event\n\n**Required token scope:** `read:notification`",
+        "operationId": "event_stream_api_v1_stream_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/event-stream": {
+                "itemSchema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "string"
+                    },
+                    "event": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "retry": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "read:notification"
+      }
+    },
+    "/api/v1/stream/public": {
+      "get": {
+        "tags": [
+          "SSE"
+        ],
+        "summary": "Public Event Stream",
+        "description": "Public (unauthenticated) SSE stream.\n\nEvent types emitted:\n- ``config_update``  \u2014 admin saved new config values\n\n**Required token scope:** `read:notification`",
+        "operationId": "public_event_stream_api_v1_stream_public_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/event-stream": {
+                "itemSchema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "string"
+                    },
+                    "event": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "retry": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:notification"
+      }
+    },
+    "/api/v1/team/{team_id}": {
+      "get": {
+        "tags": [
+          "Team"
+        ],
+        "summary": "Get Team Profile",
+        "description": "Public team profile: fields, members and challenge progress.\n\n**Required token scope:** `read:team`",
+        "operationId": "get_team_profile_api_v1_team__team_id__get",
+        "parameters": [
+          {
+            "name": "team_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Team Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PublicTeamRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:team"
+      }
+    },
+    "/api/v1/oauth2/.well-known/oauth-authorization-server": {
+      "get": {
+        "tags": [
+          "oauth2"
+        ],
+        "summary": "Metadata",
+        "operationId": "metadata_api_v1_oauth2__well_known_oauth_authorization_server_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthServerMetadata"
+                }
+              }
+            }
+          }
+        },
+        "description": "**API tokens:** not accepted, this endpoint needs a browser session."
+      }
+    },
+    "/api/v1/oauth2/authorize": {
+      "get": {
+        "tags": [
+          "oauth2"
+        ],
+        "summary": "Authorize",
+        "operationId": "authorize_api_v1_oauth2_authorize_get",
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Client Id"
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Redirect Uri"
+            }
+          },
+          {
+            "name": "response_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "code",
+              "title": "Response Type"
+            }
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "openid profile",
+              "title": "Scope"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Code Challenge"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Code Challenge Method"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "**API tokens:** not accepted, this endpoint needs a browser session."
+      }
+    },
+    "/api/v1/oauth2/client-info": {
+      "get": {
+        "tags": [
+          "oauth2"
+        ],
+        "summary": "Client Info",
+        "operationId": "client_info_api_v1_oauth2_client_info_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Client Id"
+            }
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "openid profile",
+              "title": "Scope"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_OAuthConsentInfo_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "**API tokens:** not accepted, this endpoint needs a browser session."
+      }
+    },
+    "/api/v1/oauth2/authorize/approve": {
+      "post": {
+        "tags": [
+          "oauth2"
+        ],
+        "summary": "Approve",
+        "operationId": "approve_api_v1_oauth2_authorize_approve_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OAuthApproveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_OAuthApproveResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "description": "**API tokens:** not accepted, this endpoint needs a browser session."
+      }
+    },
+    "/api/v1/oauth2/token": {
+      "post": {
+        "tags": [
+          "oauth2"
+        ],
+        "summary": "Token",
+        "operationId": "token_api_v1_oauth2_token_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_token_api_v1_oauth2_token_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthTokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "description": "**API tokens:** not accepted, this endpoint needs a browser session."
+      }
+    },
+    "/api/v1/oauth2/userinfo": {
+      "get": {
+        "tags": [
+          "oauth2"
+        ],
+        "summary": "Userinfo",
+        "operationId": "userinfo_api_v1_oauth2_userinfo_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthUserinfo"
+                }
+              }
+            }
+          }
+        },
+        "description": "**API tokens:** not accepted, this endpoint needs a browser session."
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdminStats": {
+        "properties": {
+          "users": {
+            "type": "integer",
+            "title": "Users"
+          },
+          "teams": {
+            "type": "integer",
+            "title": "Teams"
+          },
+          "challenges": {
+            "type": "integer",
+            "title": "Challenges"
+          },
+          "submissions": {
+            "type": "integer",
+            "title": "Submissions"
+          },
+          "correct_submissions": {
+            "type": "integer",
+            "title": "Correct Submissions"
+          },
+          "hint_unlocks": {
+            "type": "integer",
+            "title": "Hint Unlocks"
+          },
+          "hint_cost_spent": {
+            "type": "integer",
+            "title": "Hint Cost Spent"
+          },
+          "version": {
+            "$ref": "#/components/schemas/VersionInfo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "users",
+          "teams",
+          "challenges",
+          "submissions",
+          "correct_submissions",
+          "hint_unlocks",
+          "hint_cost_spent",
+          "version"
+        ],
+        "title": "AdminStats"
+      },
+      "Body_login_api_v1_auth_token_post": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          },
+          "totp_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totp Code"
+          },
+          "captcha_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Captcha Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "Body_login_api_v1_auth_token_post"
+      },
+      "Body_token_api_v1_oauth2_token_post": {
+        "properties": {
+          "grant_type": {
+            "type": "string",
+            "title": "Grant Type"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "redirect_uri": {
+            "type": "string",
+            "title": "Redirect Uri"
+          },
+          "client_id": {
+            "type": "string",
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "type": "string",
+            "title": "Client Secret"
+          },
+          "code_verifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code Verifier"
+          }
+        },
+        "type": "object",
+        "required": [
+          "grant_type",
+          "code",
+          "redirect_uri",
+          "client_id",
+          "client_secret"
+        ],
+        "title": "Body_token_api_v1_oauth2_token_post"
+      },
+      "BrandingInfo": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "logo_url": {
+            "type": "string",
+            "title": "Logo Url"
+          },
+          "favicon_url": {
+            "type": "string",
+            "title": "Favicon Url"
+          },
+          "primary_color": {
+            "type": "string",
+            "title": "Primary Color"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "logo_url",
+          "favicon_url",
+          "primary_color"
+        ],
+        "title": "BrandingInfo"
+      },
+      "CaptchaInfo": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "title": "CaptchaInfo"
+      },
+      "CompetitionInfo": {
+        "properties": {
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "start_time": {
+            "type": "string",
+            "title": "Start Time"
+          },
+          "end_time": {
+            "type": "string",
+            "title": "End Time"
+          },
+          "freeze_time": {
+            "type": "string",
+            "title": "Freeze Time"
+          },
+          "allow_registration": {
+            "type": "boolean",
+            "title": "Allow Registration"
+          },
+          "allow_team_creation": {
+            "type": "boolean",
+            "title": "Allow Team Creation"
+          },
+          "require_email": {
+            "type": "boolean",
+            "title": "Require Email",
+            "default": false
+          },
+          "allow_team_changes": {
+            "type": "boolean",
+            "title": "Allow Team Changes",
+            "default": true
+          },
+          "allow_user_customization": {
+            "type": "boolean",
+            "title": "Allow User Customization",
+            "default": true
+          },
+          "allow_team_customization": {
+            "type": "boolean",
+            "title": "Allow Team Customization",
+            "default": true
+          },
+          "enable_challenge_feedback": {
+            "type": "boolean",
+            "title": "Enable Challenge Feedback",
+            "default": true
+          },
+          "team_size": {
+            "type": "integer",
+            "title": "Team Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "description",
+          "start_time",
+          "end_time",
+          "freeze_time",
+          "allow_registration",
+          "allow_team_creation",
+          "team_size"
+        ],
+        "title": "CompetitionInfo"
+      },
+      "CursorPaginatedResponse_PublicApiTokenRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/PublicApiTokenRead"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/CursorPagination"
+          },
+          "pagination_type": {
+            "type": "string",
+            "const": "cursor",
+            "title": "Pagination Type",
+            "default": "cursor"
+          },
+          "filter_attributes": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {},
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter Attributes"
+          },
+          "search_columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search Columns"
+          },
+          "order_columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Columns"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "pagination"
+        ],
+        "title": "CursorPaginatedResponse[PublicApiTokenRead]"
+      },
+      "CursorPagination": {
+        "properties": {
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "prev_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prev Cursor"
+          },
+          "items_per_page": {
+            "type": "integer",
+            "title": "Items Per Page"
+          },
+          "has_more": {
+            "type": "boolean",
+            "title": "Has More"
+          }
+        },
+        "type": "object",
+        "required": [
+          "next_cursor",
+          "items_per_page",
+          "has_more"
+        ],
+        "title": "CursorPagination",
+        "description": "Pagination metadata for cursor-based list responses.\n\nAttributes:\n    next_cursor: Encoded cursor for the next page, or None on the last page.\n    prev_cursor: Encoded cursor for the previous page, or None on the first page.\n    items_per_page: Number of items requested per page.\n    has_more: Whether there is at least one more page after this one."
+      },
+      "CustomFieldType": {
+        "type": "string",
+        "enum": [
+          "string",
+          "integer",
+          "boolean",
+          "url"
+        ],
+        "title": "CustomFieldType"
+      },
+      "EditableCustomField": {
+        "properties": {
+          "definition_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Definition Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "field_type": {
+            "$ref": "#/components/schemas/CustomFieldType"
+          },
+          "is_required": {
+            "type": "boolean",
+            "title": "Is Required"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "definition_id",
+          "label",
+          "field_type",
+          "is_required"
+        ],
+        "title": "EditableCustomField",
+        "description": "One definition for a profile's target, carrying the owner's current value."
+      },
+      "EmailVerifyRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "EmailVerifyRequest"
+      },
+      "FeedbackBody": {
+        "properties": {
+          "rating": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Rating"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rating"
+        ],
+        "title": "FeedbackBody"
+      },
+      "ForgotPasswordRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "ForgotPasswordRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InputType": {
+        "type": "string",
+        "enum": [
+          "input",
+          "code",
+          "text",
+          "mcq"
+        ],
+        "title": "InputType"
+      },
+      "Link": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "url"
+        ],
+        "title": "Link"
+      },
+      "LinkInput": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Label"
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 512,
+            "pattern": "^https?://",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "url"
+        ],
+        "title": "LinkInput",
+        "description": "A link accepted from a client: http(s) only, so no ``javascript:`` hrefs."
+      },
+      "MyProfileRead": {
+        "properties": {
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "type": "array",
+            "title": "Links",
+            "default": []
+          },
+          "custom_fields": {
+            "items": {
+              "$ref": "#/components/schemas/EditableCustomField"
+            },
+            "type": "array",
+            "title": "Custom Fields",
+            "default": []
+          }
+        },
+        "type": "object",
+        "title": "MyProfileRead"
+      },
+      "MyProfileUpdate": {
+        "properties": {
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/LinkInput"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Links",
+            "default": []
+          },
+          "custom_fields": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "propertyNames": {
+              "format": "uuid"
+            },
+            "type": "object",
+            "title": "Custom Fields",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "title": "MyProfileUpdate",
+        "description": "Full replacement of the user fields a player may edit."
+      },
+      "MyTeamProfileRead": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "type": "array",
+            "title": "Links",
+            "default": []
+          },
+          "custom_fields": {
+            "items": {
+              "$ref": "#/components/schemas/EditableCustomField"
+            },
+            "type": "array",
+            "title": "Custom Fields",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "country"
+        ],
+        "title": "MyTeamProfileRead"
+      },
+      "MyTeamProfileUpdate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Z]{2}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/LinkInput"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Links",
+            "default": []
+          },
+          "custom_fields": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "propertyNames": {
+              "format": "uuid"
+            },
+            "type": "object",
+            "title": "Custom Fields",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "MyTeamProfileUpdate",
+        "description": "Full replacement of the team fields a member may edit."
+      },
+      "MyTeamRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "bracket": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bracket"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "type": "array",
+            "title": "Links",
+            "default": []
+          },
+          "members": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PublicTeamMember"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Members"
+          },
+          "member_count": {
+            "type": "integer",
+            "title": "Member Count"
+          },
+          "challenge_stats": {
+            "items": {
+              "$ref": "#/components/schemas/TeamChallengeStats"
+            },
+            "type": "array",
+            "title": "Challenge Stats"
+          },
+          "custom_fields": {
+            "items": {
+              "$ref": "#/components/schemas/PublicCustomFieldValue"
+            },
+            "type": "array",
+            "title": "Custom Fields",
+            "default": []
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "team_count": {
+            "type": "integer",
+            "title": "Team Count",
+            "default": 0
+          },
+          "invite_code": {
+            "type": "string",
+            "title": "Invite Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "country",
+          "bracket",
+          "members",
+          "member_count",
+          "challenge_stats",
+          "invite_code"
+        ],
+        "title": "MyTeamRead"
+      },
+      "OAuthApproveRequest": {
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "title": "Client Id"
+          },
+          "redirect_uri": {
+            "type": "string",
+            "title": "Redirect Uri"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": "openid profile"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          },
+          "code_challenge": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code Challenge"
+          },
+          "code_challenge_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code Challenge Method"
+          }
+        },
+        "type": "object",
+        "required": [
+          "client_id",
+          "redirect_uri"
+        ],
+        "title": "OAuthApproveRequest"
+      },
+      "OAuthApproveResponse": {
+        "properties": {
+          "redirect_to": {
+            "type": "string",
+            "title": "Redirect To"
+          }
+        },
+        "type": "object",
+        "required": [
+          "redirect_to"
+        ],
+        "title": "OAuthApproveResponse"
+      },
+      "OAuthConsentInfo": {
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "title": "Client Id"
+          },
+          "client_name": {
+            "type": "string",
+            "title": "Client Name"
+          },
+          "client_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Description"
+          },
+          "requested_scopes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Requested Scopes"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          }
+        },
+        "type": "object",
+        "required": [
+          "client_id",
+          "client_name",
+          "client_description",
+          "requested_scopes",
+          "username"
+        ],
+        "title": "OAuthConsentInfo"
+      },
+      "OAuthServerMetadata": {
+        "properties": {
+          "issuer": {
+            "type": "string",
+            "title": "Issuer"
+          },
+          "authorization_endpoint": {
+            "type": "string",
+            "title": "Authorization Endpoint"
+          },
+          "token_endpoint": {
+            "type": "string",
+            "title": "Token Endpoint"
+          },
+          "userinfo_endpoint": {
+            "type": "string",
+            "title": "Userinfo Endpoint"
+          },
+          "scopes_supported": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Scopes Supported"
+          },
+          "response_types_supported": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Response Types Supported"
+          },
+          "grant_types_supported": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Grant Types Supported"
+          },
+          "token_endpoint_auth_methods_supported": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Token Endpoint Auth Methods Supported"
+          },
+          "code_challenge_methods_supported": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Code Challenge Methods Supported"
+          }
+        },
+        "type": "object",
+        "required": [
+          "issuer",
+          "authorization_endpoint",
+          "token_endpoint",
+          "userinfo_endpoint",
+          "scopes_supported",
+          "response_types_supported",
+          "grant_types_supported",
+          "token_endpoint_auth_methods_supported",
+          "code_challenge_methods_supported"
+        ],
+        "title": "OAuthServerMetadata",
+        "description": "RFC 8414 OAuth 2.0 Authorization Server Metadata."
+      },
+      "OAuthTokenResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "expires_in",
+          "scope"
+        ],
+        "title": "OAuthTokenResponse"
+      },
+      "OAuthUserinfo": {
+        "properties": {
+          "sub": {
+            "type": "string",
+            "title": "Sub"
+          },
+          "username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Username"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sub"
+        ],
+        "title": "OAuthUserinfo"
+      },
+      "OffsetPaginatedResponse_PublicApiTokenRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/PublicApiTokenRead"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/OffsetPagination"
+          },
+          "pagination_type": {
+            "type": "string",
+            "const": "offset",
+            "title": "Pagination Type",
+            "default": "offset"
+          },
+          "filter_attributes": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {},
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter Attributes"
+          },
+          "search_columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search Columns"
+          },
+          "order_columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Columns"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "pagination"
+        ],
+        "title": "OffsetPaginatedResponse[PublicApiTokenRead]"
+      },
+      "OffsetPagination": {
+        "properties": {
+          "total_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Count"
+          },
+          "items_per_page": {
+            "type": "integer",
+            "title": "Items Per Page"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "has_more": {
+            "type": "boolean",
+            "title": "Has More"
+          },
+          "pages": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pages",
+            "description": "Total number of pages, or ``None`` when ``total_count`` is unknown.",
+            "readOnly": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_count",
+          "items_per_page",
+          "page",
+          "has_more",
+          "pages"
+        ],
+        "title": "OffsetPagination",
+        "description": "Pagination metadata for offset-based list responses.\n\nAttributes:\n    total_count: Total number of items across all pages.\n        ``None`` when ``include_total=False``.\n    items_per_page: Number of items per page\n    page: Current page number (1-indexed)\n    has_more: Whether there are more pages\n    pages: Total number of pages"
+      },
+      "PasswordChangeRequest": {
+        "properties": {
+          "current_password": {
+            "type": "string",
+            "title": "Current Password"
+          },
+          "new_password": {
+            "type": "string",
+            "title": "New Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_password",
+          "new_password"
+        ],
+        "title": "PasswordChangeRequest"
+      },
+      "PasswordResetRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "new_password": {
+            "type": "string",
+            "title": "New Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "new_password"
+        ],
+        "title": "PasswordResetRequest"
+      },
+      "PluginManifestEntry": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "remote_entry": {
+            "type": "string",
+            "title": "Remote Entry"
+          },
+          "slots": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Slots"
+          },
+          "challenge_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Challenge Types"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "remote_entry",
+          "slots",
+          "challenge_types"
+        ],
+        "title": "PluginManifestEntry"
+      },
+      "PublicAdjustmentDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "amount": {
+            "type": "integer",
+            "title": "Amount"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "challenge_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Challenge Id"
+          },
+          "challenge_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Challenge Title"
+          },
+          "applied_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Applied At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "amount",
+          "reason",
+          "challenge_id",
+          "challenge_title",
+          "applied_at"
+        ],
+        "title": "PublicAdjustmentDetail"
+      },
+      "PublicApiTokenCreate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "scopes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Scopes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scopes"
+        ],
+        "title": "PublicApiTokenCreate"
+      },
+      "PublicApiTokenRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "scopes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Scopes"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "expires_at",
+          "scopes",
+          "created_at"
+        ],
+        "title": "PublicApiTokenRead"
+      },
+      "PublicChallengeDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "question_count": {
+            "type": "integer",
+            "title": "Question Count"
+          },
+          "solved_count": {
+            "type": "integer",
+            "title": "Solved Count"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags",
+            "default": []
+          },
+          "challenge_type": {
+            "type": "string",
+            "title": "Challenge Type"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "writeup": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Writeup"
+          },
+          "sequential": {
+            "type": "boolean",
+            "title": "Sequential"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/PublicQuestionRead"
+            },
+            "type": "array",
+            "title": "Questions"
+          },
+          "completed": {
+            "type": "boolean",
+            "title": "Completed",
+            "default": false
+          },
+          "my_feedback": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicFeedbackRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "score_adjustments": {
+            "items": {
+              "$ref": "#/components/schemas/PublicScoreAdjustmentRead"
+            },
+            "type": "array",
+            "title": "Score Adjustments",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "category",
+          "question_count",
+          "solved_count",
+          "challenge_type",
+          "sequential",
+          "questions"
+        ],
+        "title": "PublicChallengeDetail"
+      },
+      "PublicChallengeRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "question_count": {
+            "type": "integer",
+            "title": "Question Count"
+          },
+          "solved_count": {
+            "type": "integer",
+            "title": "Solved Count"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "category",
+          "question_count",
+          "solved_count"
+        ],
+        "title": "PublicChallengeRead"
+      },
+      "PublicCustomFieldValue": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "field_type": {
+            "$ref": "#/components/schemas/CustomFieldType"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "label",
+          "field_type",
+          "value"
+        ],
+        "title": "PublicCustomFieldValue"
+      },
+      "PublicFeedbackRead": {
+        "properties": {
+          "rating": {
+            "type": "integer",
+            "title": "Rating"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rating"
+        ],
+        "title": "PublicFeedbackRead"
+      },
+      "PublicFileRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "original_filename": {
+            "type": "string",
+            "title": "Original Filename"
+          },
+          "mime_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mime Type"
+          },
+          "file_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Size"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "original_filename",
+          "mime_type",
+          "file_size",
+          "url"
+        ],
+        "title": "PublicFileRead"
+      },
+      "PublicHintRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "cost": {
+            "type": "integer",
+            "title": "Cost"
+          },
+          "is_unlocked": {
+            "type": "boolean",
+            "title": "Is Unlocked"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "cost",
+          "is_unlocked"
+        ],
+        "title": "PublicHintRead"
+      },
+      "PublicInfo": {
+        "properties": {
+          "branding": {
+            "$ref": "#/components/schemas/BrandingInfo"
+          },
+          "competition": {
+            "$ref": "#/components/schemas/CompetitionInfo"
+          },
+          "oauth_providers": {
+            "items": {
+              "$ref": "#/components/schemas/PublicOAuthProviderRead"
+            },
+            "type": "array",
+            "title": "Oauth Providers"
+          },
+          "captcha": {
+            "$ref": "#/components/schemas/CaptchaInfo"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/PublicLinkRead"
+            },
+            "type": "array",
+            "title": "Links"
+          }
+        },
+        "type": "object",
+        "required": [
+          "branding",
+          "competition",
+          "oauth_providers",
+          "captcha",
+          "links"
+        ],
+        "title": "PublicInfo"
+      },
+      "PublicLinkRead": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "url"
+        ],
+        "title": "PublicLinkRead"
+      },
+      "PublicNotificationItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "is_broadcast": {
+            "type": "boolean",
+            "title": "Is Broadcast"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "content",
+          "is_broadcast",
+          "created_at"
+        ],
+        "title": "PublicNotificationItem"
+      },
+      "PublicNotificationListResponse": {
+        "properties": {
+          "notifications": {
+            "items": {
+              "$ref": "#/components/schemas/PublicNotificationItem"
+            },
+            "type": "array",
+            "title": "Notifications"
+          },
+          "last_read_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Read At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "notifications",
+          "last_read_at"
+        ],
+        "title": "PublicNotificationListResponse"
+      },
+      "PublicOAuthAccountRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "provider_slug": {
+            "type": "string",
+            "title": "Provider Slug"
+          },
+          "provider_name": {
+            "type": "string",
+            "title": "Provider Name"
+          },
+          "provider_icon_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Icon Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "provider_slug",
+          "provider_name"
+        ],
+        "title": "PublicOAuthAccountRead"
+      },
+      "PublicOAuthProviderRead": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "icon_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "name"
+        ],
+        "title": "PublicOAuthProviderRead"
+      },
+      "PublicPageDetail": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "nav_placement": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nav Placement"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "title",
+          "content",
+          "nav_placement"
+        ],
+        "title": "PublicPageDetail",
+        "description": "Full published page content for rendering."
+      },
+      "PublicPageRead": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "nav_placement": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nav Placement"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "title",
+          "nav_placement"
+        ],
+        "title": "PublicPageRead",
+        "description": "Minimal representation used for navigation lists."
+      },
+      "PublicQuestionRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "points": {
+            "type": "integer",
+            "title": "Points"
+          },
+          "malus": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Malus"
+          },
+          "input_type": {
+            "$ref": "#/components/schemas/InputType",
+            "default": "input"
+          },
+          "is_solved": {
+            "type": "boolean",
+            "title": "Is Solved"
+          },
+          "is_locked": {
+            "type": "boolean",
+            "title": "Is Locked",
+            "default": false
+          },
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/PublicFileRead"
+            },
+            "type": "array",
+            "title": "Files",
+            "default": []
+          },
+          "hints": {
+            "items": {
+              "$ref": "#/components/schemas/PublicHintRead"
+            },
+            "type": "array",
+            "title": "Hints",
+            "default": []
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags",
+            "default": []
+          },
+          "options": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options"
+          },
+          "multi_select": {
+            "type": "boolean",
+            "title": "Multi Select",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "points",
+          "malus",
+          "is_solved"
+        ],
+        "title": "PublicQuestionRead"
+      },
+      "PublicRegisterRequest": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "email"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "captcha_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Captcha Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "PublicRegisterRequest"
+      },
+      "PublicScoreAdjustmentRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "amount": {
+            "type": "integer",
+            "title": "Amount"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "amount",
+          "reason"
+        ],
+        "title": "PublicScoreAdjustmentRead"
+      },
+      "PublicScoreboard": {
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/PublicScoreboardEntry"
+            },
+            "type": "array",
+            "title": "Entries"
+          },
+          "computed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Computed At"
+          },
+          "brackets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Brackets",
+            "default": []
+          },
+          "custom_fields": {
+            "items": {
+              "$ref": "#/components/schemas/ScoreboardCustomField"
+            },
+            "type": "array",
+            "title": "Custom Fields",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "entries",
+          "computed_at"
+        ],
+        "title": "PublicScoreboard"
+      },
+      "PublicScoreboardEntry": {
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "team_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Team Id"
+          },
+          "team_name": {
+            "type": "string",
+            "title": "Team Name"
+          },
+          "team_bracket": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team Bracket"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "custom_fields": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Custom Fields",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "rank",
+          "team_id",
+          "team_name",
+          "team_bracket",
+          "total"
+        ],
+        "title": "PublicScoreboardEntry"
+      },
+      "PublicSolveDetail": {
+        "properties": {
+          "submission_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Submission Id"
+          },
+          "question_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Question Id"
+          },
+          "question_label": {
+            "type": "string",
+            "title": "Question Label"
+          },
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Challenge Id"
+          },
+          "challenge_title": {
+            "type": "string",
+            "title": "Challenge Title"
+          },
+          "points_earned": {
+            "type": "integer",
+            "title": "Points Earned"
+          },
+          "wrong_attempts": {
+            "type": "integer",
+            "title": "Wrong Attempts"
+          },
+          "solved_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Solved At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "submission_id",
+          "question_id",
+          "question_label",
+          "challenge_id",
+          "challenge_title",
+          "points_earned",
+          "wrong_attempts",
+          "solved_at"
+        ],
+        "title": "PublicSolveDetail"
+      },
+      "PublicTeamMember": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "type": "array",
+            "title": "Links",
+            "default": []
+          },
+          "custom_fields": {
+            "items": {
+              "$ref": "#/components/schemas/PublicCustomFieldValue"
+            },
+            "type": "array",
+            "title": "Custom Fields",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "username"
+        ],
+        "title": "PublicTeamMember"
+      },
+      "PublicTeamRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "bracket": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bracket"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "type": "array",
+            "title": "Links",
+            "default": []
+          },
+          "members": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PublicTeamMember"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Members"
+          },
+          "member_count": {
+            "type": "integer",
+            "title": "Member Count"
+          },
+          "challenge_stats": {
+            "items": {
+              "$ref": "#/components/schemas/TeamChallengeStats"
+            },
+            "type": "array",
+            "title": "Challenge Stats"
+          },
+          "custom_fields": {
+            "items": {
+              "$ref": "#/components/schemas/PublicCustomFieldValue"
+            },
+            "type": "array",
+            "title": "Custom Fields",
+            "default": []
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "team_count": {
+            "type": "integer",
+            "title": "Team Count",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "country",
+          "bracket",
+          "members",
+          "member_count",
+          "challenge_stats"
+        ],
+        "title": "PublicTeamRead"
+      },
+      "PublicTeamScoreDetail": {
+        "properties": {
+          "team_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Team Id"
+          },
+          "team_name": {
+            "type": "string",
+            "title": "Team Name"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "solve_points": {
+            "type": "integer",
+            "title": "Solve Points"
+          },
+          "adjustment_points": {
+            "type": "integer",
+            "title": "Adjustment Points"
+          },
+          "hint_points": {
+            "type": "integer",
+            "title": "Hint Points"
+          },
+          "solves": {
+            "items": {
+              "$ref": "#/components/schemas/PublicSolveDetail"
+            },
+            "type": "array",
+            "title": "Solves"
+          },
+          "adjustments": {
+            "items": {
+              "$ref": "#/components/schemas/PublicAdjustmentDetail"
+            },
+            "type": "array",
+            "title": "Adjustments"
+          },
+          "computed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Computed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "team_id",
+          "team_name",
+          "total",
+          "solve_points",
+          "adjustment_points",
+          "hint_points",
+          "solves",
+          "adjustments",
+          "computed_at"
+        ],
+        "title": "PublicTeamScoreDetail"
+      },
+      "PublicUserRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "email_verified": {
+            "type": "boolean",
+            "title": "Email Verified",
+            "default": false
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "team_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team Id"
+          },
+          "team_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team Name"
+          },
+          "totp_enabled": {
+            "type": "boolean",
+            "title": "Totp Enabled",
+            "default": false
+          },
+          "has_password": {
+            "type": "boolean",
+            "title": "Has Password",
+            "default": false
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "type": "array",
+            "title": "Links",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "username",
+          "email",
+          "role",
+          "is_active"
+        ],
+        "title": "PublicUserRead"
+      },
+      "ResendVerificationRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "ResendVerificationRequest"
+      },
+      "ResponseStatus": {
+        "type": "string",
+        "enum": [
+          "SUCCESS",
+          "FAIL"
+        ],
+        "title": "ResponseStatus",
+        "description": "Standard API response status."
+      },
+      "Response_AdminStats_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdminStats"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[AdminStats]"
+      },
+      "Response_MyProfileRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MyProfileRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[MyProfileRead]"
+      },
+      "Response_MyTeamProfileRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MyTeamProfileRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[MyTeamProfileRead]"
+      },
+      "Response_MyTeamRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MyTeamRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[MyTeamRead]"
+      },
+      "Response_OAuthApproveResponse_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OAuthApproveResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[OAuthApproveResponse]"
+      },
+      "Response_OAuthConsentInfo_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OAuthConsentInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[OAuthConsentInfo]"
+      },
+      "Response_PublicApiTokenRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicApiTokenRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[PublicApiTokenRead]"
+      },
+      "Response_PublicChallengeDetail_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicChallengeDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[PublicChallengeDetail]"
+      },
+      "Response_PublicFeedbackRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicFeedbackRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[PublicFeedbackRead]"
+      },
+      "Response_PublicHintRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicHintRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[PublicHintRead]"
+      },
+      "Response_PublicInfo_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[PublicInfo]"
+      },
+      "Response_PublicNotificationListResponse_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicNotificationListResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[PublicNotificationListResponse]"
+      },
+      "Response_PublicPageDetail_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicPageDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[PublicPageDetail]"
+      },
+      "Response_PublicScoreboard_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicScoreboard"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[PublicScoreboard]"
+      },
+      "Response_PublicTeamRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicTeamRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[PublicTeamRead]"
+      },
+      "Response_PublicTeamScoreDetail_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicTeamScoreDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[PublicTeamScoreDetail]"
+      },
+      "Response_PublicUserRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicUserRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[PublicUserRead]"
+      },
+      "Response_ScoreboardHistory_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScoreboardHistory"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[ScoreboardHistory]"
+      },
+      "Response_SubmitResult_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SubmitResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[SubmitResult]"
+      },
+      "Response_TotpSetupResponse_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TotpSetupResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[TotpSetupResponse]"
+      },
+      "Response_Union_MyTeamRead__NoneType__": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MyTeamRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[Union[MyTeamRead, NoneType]]"
+      },
+      "Response_list_PublicChallengeRead__": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PublicChallengeRead"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "title": "Response[list[PublicChallengeRead]]"
+      },
+      "Response_list_PublicOAuthAccountRead__": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PublicOAuthAccountRead"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "title": "Response[list[PublicOAuthAccountRead]]"
+      },
+      "Response_list_PublicPageRead__": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PublicPageRead"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "title": "Response[list[PublicPageRead]]"
+      },
+      "Response_list_UserSessionRead__": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/UserSessionRead"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "title": "Response[list[UserSessionRead]]"
+      },
+      "Response_list_str__": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "title": "Response[list[str]]"
+      },
+      "Response_str_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "title": "Response[str]"
+      },
+      "ScoreEvent": {
+        "properties": {
+          "ts": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Ts"
+          },
+          "cumulative": {
+            "type": "integer",
+            "title": "Cumulative"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ts",
+          "cumulative"
+        ],
+        "title": "ScoreEvent"
+      },
+      "ScoreboardCustomField": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "label"
+        ],
+        "title": "ScoreboardCustomField"
+      },
+      "ScoreboardHistory": {
+        "properties": {
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/TeamScoreSeries"
+            },
+            "type": "array",
+            "title": "Series"
+          },
+          "computed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Computed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "series",
+          "computed_at"
+        ],
+        "title": "ScoreboardHistory"
+      },
+      "SubmitBody": {
+        "properties": {
+          "answer": {
+            "type": "string",
+            "title": "Answer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answer"
+        ],
+        "title": "SubmitBody"
+      },
+      "SubmitResult": {
+        "properties": {
+          "is_correct": {
+            "type": "boolean",
+            "title": "Is Correct"
+          },
+          "already_solved": {
+            "type": "boolean",
+            "title": "Already Solved"
+          },
+          "points_earned": {
+            "type": "integer",
+            "title": "Points Earned"
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_correct",
+          "already_solved",
+          "points_earned"
+        ],
+        "title": "SubmitResult"
+      },
+      "TeamChallengeStats": {
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Challenge Id"
+          },
+          "challenge_title": {
+            "type": "string",
+            "title": "Challenge Title"
+          },
+          "question_count": {
+            "type": "integer",
+            "title": "Question Count"
+          },
+          "solved_question_count": {
+            "type": "integer",
+            "title": "Solved Question Count"
+          },
+          "is_solved": {
+            "type": "boolean",
+            "title": "Is Solved"
+          },
+          "attempt_count": {
+            "type": "integer",
+            "title": "Attempt Count"
+          },
+          "points_earned": {
+            "type": "integer",
+            "title": "Points Earned"
+          },
+          "first_solve_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Solve At"
+          },
+          "last_solve_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Solve At"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/TeamQuestionStats"
+            },
+            "type": "array",
+            "title": "Questions",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "challenge_id",
+          "challenge_title",
+          "question_count",
+          "solved_question_count",
+          "is_solved",
+          "attempt_count",
+          "points_earned",
+          "first_solve_at",
+          "last_solve_at"
+        ],
+        "title": "TeamChallengeStats"
+      },
+      "TeamCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "TeamCreate"
+      },
+      "TeamJoinRequest": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "TeamJoinRequest"
+      },
+      "TeamQuestionStats": {
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Question Id"
+          },
+          "question_label": {
+            "type": "string",
+            "title": "Question Label"
+          },
+          "is_solved": {
+            "type": "boolean",
+            "title": "Is Solved"
+          },
+          "points_earned": {
+            "type": "integer",
+            "title": "Points Earned",
+            "default": 0
+          },
+          "hint_unlock_count": {
+            "type": "integer",
+            "title": "Hint Unlock Count",
+            "default": 0
+          },
+          "wrong_attempt_count": {
+            "type": "integer",
+            "title": "Wrong Attempt Count",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "question_id",
+          "question_label",
+          "is_solved"
+        ],
+        "title": "TeamQuestionStats"
+      },
+      "TeamScoreSeries": {
+        "properties": {
+          "team_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Team Id"
+          },
+          "team_name": {
+            "type": "string",
+            "title": "Team Name"
+          },
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ScoreEvent"
+            },
+            "type": "array",
+            "title": "Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "team_id",
+          "team_name",
+          "rank",
+          "events"
+        ],
+        "title": "TeamScoreSeries"
+      },
+      "TotpDisableRequest": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "TotpDisableRequest"
+      },
+      "TotpEnableRequest": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "TotpEnableRequest"
+      },
+      "TotpSetupResponse": {
+        "properties": {
+          "provisioning_uri": {
+            "type": "string",
+            "title": "Provisioning Uri"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provisioning_uri"
+        ],
+        "title": "TotpSetupResponse"
+      },
+      "UserSessionRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ip"
+          },
+          "last_ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Ip"
+          },
+          "user_agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Agent"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen At"
+          },
+          "current": {
+            "type": "boolean",
+            "title": "Current"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "ip",
+          "last_ip",
+          "user_agent",
+          "last_seen_at",
+          "current"
+        ],
+        "title": "UserSessionRead"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VersionInfo": {
+        "properties": {
+          "current": {
+            "type": "string",
+            "title": "Current"
+          },
+          "latest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest"
+          },
+          "release_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Release Url"
+          },
+          "update_available": {
+            "type": "boolean",
+            "title": "Update Available",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "current"
+        ],
+        "title": "VersionInfo"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "APIKeyCookie_NexCTF": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "NexCTF"
+      }
+    }
+  }
+}

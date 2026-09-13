@@ -1,0 +1,78 @@
+/* ---------------------------------------------------------------------------
+   Page status: "wip"
+   ---------------------------------------------------------------------------
+   The theme ships icons for `new`, `deprecated` and `encrypted` only, so a
+   custom `status: wip` front-matter value renders an empty badge until the
+   mask image is defined here. Same shape as the theme's own definitions:
+   a lucide glyph as a data URI, masked by `.md-status--<type>:after`.
+--------------------------------------------------------------------------- */
+
+:root {
+  --md-status--wip: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M17 12h.01M12 12h.01M7 12h.01"/></svg>');
+}
+
+.md-status--wip:after {
+  -webkit-mask-image: var(--md-status--wip);
+  mask-image: var(--md-status--wip);
+}
+
+/* ---------------------------------------------------------------------------
+   Code spans in tables
+   ---------------------------------------------------------------------------
+   Long values in a narrow table column break mid-token by default
+   ("/api/v1/oauth2/.well-known/oauth-authorizat ion-server"), which makes them
+   unreadable and awkward to select. Keep code spans in a table cell on one
+   line; the theme already scrolls a table that ends up too wide.
+--------------------------------------------------------------------------- */
+
+.md-typeset table:not([class]) td > code {
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   Embedded OpenAPI viewer
+   ---------------------------------------------------------------------------
+   RapiDoc defaults to filling the viewport height. Inside a docs page it has
+   to flow with the content instead, or the page gets a second scrollbar.
+--------------------------------------------------------------------------- */
+
+rapi-doc.nex-rapidoc {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 20rem;
+
+  /* RapiDoc declares its palette as custom properties on its own `:host`.
+     Properties set on the host from the outer document win over those, which
+     is how the viewer is repainted in the theme's colours without touching
+     the component. Doing it here rather than through its `bg-color` attribute
+     also means it follows the palette toggle for free: Material redefines
+     these tokens per colour scheme.
+
+     `--bg` is transparent on purpose. RapiDoc's own dark default is a mid grey
+     that reads as a slab sitting on the near-black page. */
+  --bg: transparent;
+  --bg2: var(--md-code-bg-color);
+  --bg3: var(--md-default-fg-color--lightest);
+  --light-bg: var(--md-default-fg-color--lightest);
+  --fg: var(--md-typeset-color);
+  --fg2: var(--md-default-fg-color--light);
+  --fg3: var(--md-default-fg-color--light);
+  --primary-color: var(--md-typeset-a-color);
+  /* `--border-color` draws only the rule under each tag section and the
+     tooltip outlines. The section rule reads as a divider bar and the coloured
+     headings already separate the groups, so it goes; the tooltips keep their
+     own background and stay legible without an outline.
+
+     `--light-border-color` is the one that separates endpoint rows, so it
+     keeps the weight the theme uses for its own rules and table borders. */
+  --border-color: transparent;
+  --light-border-color: var(--md-default-fg-color--lightest);
+}
+
+/* Shown in place of the viewer when the CDN script cannot be fetched. */
+.nex-rapidoc-error {
+  border-left: 0.2rem solid var(--md-typeset-color);
+  opacity: 0.75;
+  padding-left: 0.8rem;
+}

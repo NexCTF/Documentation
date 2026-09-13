@@ -1,0 +1,511 @@
+{% extends "main.html" %}
+
+{# ------------------------------------------------------------------
+   NexCTF landing page. Assign via front matter: `template: home.html`
+   plus `hide: - navigation - toc`.
+
+   Never override the `header` block: it is the only block outside
+   [data-md-component=container], so instant navigation cannot swap it
+   and a custom header would leak into the docs pages, and theirs back
+   into this one. The theme header and tabs are restyled below instead.
+------------------------------------------------------------------ #}
+
+{% block content %}{% endblock %}
+
+{% block styles %}
+  {{ super() }}
+  <style>
+    /* The content block is empty but its wrapper is kept, since instant
+       navigation looks for [data-md-component="content"] when swapping.
+       Empty, `.md-main` still claims leftover height via `flex-grow:1`
+       and paints a bar under the hero, so stop it growing and hide it. */
+    .md-main{ flex-grow:0; }
+    .md-content{ display:none; }
+    .md-main__inner{ margin-top:0; }
+
+    :root{
+      --nex-bg: #0b0f14;
+      --nex-bg-alt: #10161d;
+      --nex-border: rgba(255,255,255,0.08);
+      --nex-accent: #ffb000;      /* phosphor amber */
+      --nex-accent-soft: rgba(255,176,0,0.08);   /* accent as a fill */
+      --nex-accent-line: rgba(255,176,0,0.45);   /* accent as a border */
+      --nex-text: #e9e7e1;
+      --nex-text-dim: #8b93a1;
+      --nex-mono: 'IBM Plex Mono', ui-monospace, monospace;
+      --nex-sans: 'Inter', system-ui, sans-serif;
+      --nex-ease: cubic-bezier(0.2,0.7,0.3,1);
+    }
+
+    .nex-page{
+      /* The theme's root font-size is 125% (20px); this landing copy was
+         written against the usual 16px, and sizes itself in em from here
+         so the theme header, tabs and footer keep their own scale. */
+      font-size:16px;
+      font-family:var(--nex-sans);
+      color:var(--nex-text);
+      background:var(--nex-bg);
+      line-height:1.55;
+    }
+    .nex-page a{ text-decoration:none; }
+    .nex-page img{ max-width:100%; display:block; }
+    .nex-wrap{ max-width:1180px; margin:0 auto; padding:0 32px; }
+
+    /* ---------- NAVBAR ----------
+       The theme header and tabs are the landing navbar, recolored for
+       the dark hero. Scoped to this template, so the docs are stock. */
+    .md-header, .md-tabs{
+      background:rgba(11,15,20,0.72); backdrop-filter:blur(10px);
+      color:var(--nex-text); box-shadow:none;
+    }
+    .md-tabs{ border-bottom:1px solid var(--nex-border); }
+    .md-tabs__link{ color:var(--nex-text-dim); opacity:1; }
+    .md-tabs__link:hover, .md-tabs__link--active{ color:var(--nex-text); }
+
+    /* ---------- HERO ---------- */
+    .nex-hero{
+      position:relative;
+      min-height:calc(100vh - 4.8rem); /* header + tabs, 2.4rem each */
+      display:flex; align-items:center;
+      overflow:hidden;
+      isolation:isolate;
+    }
+    .nex-hero-bg{
+      position:absolute; inset:0; z-index:-2;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,176,0,0.08), transparent 60%),
+        linear-gradient(180deg, #0d1218 0%, #0b0f14 100%);
+    }
+    /* A second, slower amber bloom drifting over the first one. Purely
+       decorative, so it sits on a pseudo-element and stops under reduce. */
+    .nex-hero-bg::before{
+      content:''; position:absolute; inset:-20% -10% auto -10%; height:80%;
+      background:radial-gradient(ellipse 50% 60% at 50% 30%, rgba(255,176,0,0.10), transparent 65%);
+      filter:blur(10px);
+    }
+    .nex-hero-shot{
+      position:absolute; top:14%; left:50%; transform:translateX(-50%);
+      width:min(1100px, 92%);
+      border-radius:10px; border:1px solid var(--nex-border);
+      box-shadow:0 40px 120px -20px rgba(0,0,0,0.6);
+      opacity:0.5;
+    }
+    .nex-hero-scrim{
+      position:absolute; inset:0; z-index:-1;
+      background:linear-gradient(180deg, rgba(11,15,20,0.4) 0%, rgba(11,15,20,0.55) 40%, rgba(11,15,20,0.97) 92%);
+    }
+
+    .nex-hero-content{ position:relative; width:100%; text-align:center; }
+    .nex-hero h1{
+      font-family:var(--nex-mono); font-weight:600;
+      font-size:clamp(3em, 9vw, 6.5em);
+      letter-spacing:-0.02em; line-height:0.95;
+      margin-bottom:24px; color:var(--nex-text);
+    }
+    .nex-hero h1 .nex-x{ color:var(--nex-accent); }
+
+    .nex-tagline{
+      font-size:clamp(1.05em, 1.6vw, 1.3em);
+      color:var(--nex-text-dim);
+      max-width:680px; margin:0 auto 40px;
+    }
+
+    .nex-cta-group{ display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+    .nex-btn{
+      font-family:var(--nex-sans); font-weight:600; font-size:0.95em;
+      padding:14px 28px; border-radius:8px;
+      transition:transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    .nex-btn-primary{ background:var(--nex-accent); color:#12140e; }
+    .nex-btn-primary:hover{ transform:translateY(-2px); background:#ffc23d; }
+    .nex-btn-ghost{ border:1px solid var(--nex-border); color:var(--nex-text); }
+    .nex-btn-ghost:hover{ border-color:var(--nex-text-dim); transform:translateY(-2px); }
+
+    .nex-scroll-cue{
+      position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
+      font-family:var(--nex-mono); font-size:0.7em; color:var(--nex-text-dim);
+      letter-spacing:0.15em; text-transform:uppercase;
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+    }
+    .nex-scroll-cue::after{
+      content:''; width:1px; height:30px; background:linear-gradient(180deg, var(--nex-text-dim), transparent);
+      animation:nex-scrollcue 2s ease-in-out infinite;
+    }
+    @keyframes nex-scrollcue{ 0%,100%{ opacity:0.2; } 50%{ opacity:1; } }
+
+    /* ---------- SECTIONS ---------- */
+    .nex-section{ padding:120px 0; }
+    .nex-section-head{ text-align:center; max-width:640px; margin:0 auto 64px; }
+    .nex-section-label{
+      font-family:var(--nex-mono); font-size:0.9em; color:var(--nex-accent);
+      letter-spacing:0.1em; text-transform:uppercase; margin-bottom:14px; display:block;
+    }
+    .nex-section-head h2{
+      font-family:var(--nex-mono); font-size:clamp(1.8em, 3.5vw, 2.6em);
+      font-weight:600; letter-spacing:-0.01em; margin-bottom:16px; color:var(--nex-text);
+    }
+    .nex-section-head p{ color:var(--nex-text-dim); font-size:1.15em; }
+
+    /* ---------- FEATURES ---------- */
+    .nex-features{ background:var(--nex-bg-alt); border-top:1px solid var(--nex-border); border-bottom:1px solid var(--nex-border); }
+    .nex-feature-grid{
+      display:grid; grid-template-columns:repeat(3, 1fr); gap:1px;
+      background:var(--nex-border); border:1px solid var(--nex-border); border-radius:12px; overflow:hidden;
+    }
+    .nex-feature-card{
+      position:relative; background:var(--nex-bg-alt); padding:36px 28px;
+      transition:background 0.25s ease;
+    }
+    .nex-feature-card::before{
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg, var(--nex-accent), rgba(255,176,0,0));
+      transform:scaleX(0); transform-origin:left;
+      transition:transform 0.45s var(--nex-ease);
+    }
+    .nex-feature-card:hover{ background:#151d26; }
+    .nex-feature-card:hover::before{ transform:scaleX(1); }
+    .nex-feature-icon{
+      width:38px; height:38px; margin-bottom:22px; color:var(--nex-accent);
+      transition:transform 0.35s var(--nex-ease);
+    }
+    .nex-feature-card:hover .nex-feature-icon{ transform:translateY(-3px) scale(1.07); }
+    .nex-feature-card h3{ font-family:var(--nex-mono); font-size:1.05em; font-weight:500; margin-bottom:10px; color:var(--nex-text); }
+    .nex-feature-card p{ color:var(--nex-text-dim); font-size:1em; }
+
+    /* ---------- SCREENS CAROUSEL ----------
+       Still CSS-only: one radio per screen, `:checked ~` drives the tab, the
+       panel and that panel's own prev/next labels. No JS, so it survives the
+       theme's instant navigation. The radios stay focusable (opacity, not
+       `display:none`), which is what gives the group free arrow-key support. */
+    .nex-carousel-radio{
+      position:absolute; width:1px; height:1px; opacity:0; margin:0;
+      clip-path:inset(50%); overflow:hidden;
+    }
+    .nex-carousel-tabs{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-bottom:56px; }
+    .nex-carousel-tab{
+      position:relative; overflow:hidden;
+      font-family:var(--nex-mono); font-size:0.9em; color:var(--nex-text-dim);
+      padding:10px 22px; border-radius:20px; border:1px solid var(--nex-border);
+      cursor:pointer; user-select:none;
+      display:inline-flex; align-items:center; gap:9px;
+      transition:color 0.25s ease, border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+    }
+    /* `--on` is the one thing the :checked pairing has to set. It inherits to
+       the number and is visible to ::before, so the bloom and the number need
+       no pairing of their own. Inactive tabs never set it, hence the
+       `var(--on, 0)` fallbacks. */
+    .nex-carousel-tab::before{
+      content:''; position:absolute; inset:0; z-index:-1;
+      background:radial-gradient(circle at 50% 120%, rgba(255,176,0,0.28), transparent 70%);
+      opacity:var(--on, 0); transition:opacity 0.35s ease;
+    }
+    .nex-carousel-tab:hover{ color:var(--nex-text); border-color:var(--nex-text-dim); transform:translateY(-1px); }
+    /* color:inherit so the number tracks the label through dim, hover and active. */
+    .nex-tab-num{
+      font-size:0.78em; letter-spacing:0.06em; color:inherit;
+      opacity:calc(0.65 + 0.35 * var(--on, 0));
+      transition:color 0.25s ease, opacity 0.25s ease;
+    }
+    #screen-1:checked ~ .nex-carousel-tabs label[for="screen-1"],
+    #screen-2:checked ~ .nex-carousel-tabs label[for="screen-2"],
+    #screen-3:checked ~ .nex-carousel-tabs label[for="screen-3"]{
+      --on:1;
+      color:var(--nex-accent); border-color:var(--nex-accent-line); background:var(--nex-accent-soft);
+    }
+    /* Keyboard: the radio takes focus, so the ring has to land on its label. */
+    #screen-1:focus-visible ~ .nex-carousel-tabs label[for="screen-1"],
+    #screen-2:focus-visible ~ .nex-carousel-tabs label[for="screen-2"],
+    #screen-3:focus-visible ~ .nex-carousel-tabs label[for="screen-3"]{
+      outline:2px solid var(--nex-accent); outline-offset:3px;
+    }
+
+    /* Panels are stacked in one grid cell, so switching cross-fades in place
+       instead of reflowing, and the stage keeps the height of the tallest. */
+    .nex-carousel-panels{ display:grid; }
+    .nex-carousel-panel{
+      grid-area:1 / 1;
+      display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center;
+      opacity:0; visibility:hidden; transform:translateY(16px);
+      transition:opacity 0.45s ease, transform 0.55s var(--nex-ease), visibility 0s linear 0.45s;
+    }
+    #screen-1:checked ~ .nex-carousel-panels #panel-1,
+    #screen-2:checked ~ .nex-carousel-panels #panel-2,
+    #screen-3:checked ~ .nex-carousel-panels #panel-3{
+      opacity:1; visibility:visible; transform:none;
+      transition:opacity 0.45s ease 0.05s, transform 0.55s var(--nex-ease) 0.05s, visibility 0s;
+    }
+
+    .nex-screen-text h3{ font-family:var(--nex-mono); font-size:1.6em; font-weight:600; margin-bottom:16px; letter-spacing:-0.01em; color:var(--nex-text); }
+    .nex-screen-text p{ color:var(--nex-text-dim); font-size:1.05em; margin-bottom:20px; }
+    .nex-screen-text ul{ list-style:none; padding:0; }
+    .nex-screen-text li{ color:var(--nex-text-dim); font-size:1em; padding-left:20px; position:relative; margin-bottom:10px; }
+    .nex-screen-text li::before{ content:'→'; position:absolute; left:0; color:var(--nex-accent); font-family:var(--nex-mono); }
+
+    /* Prev/next live inside each panel, so each one can point at fixed ids and
+       the wrap-around needs no script. Only the visible panel's are clickable. */
+    .nex-screen-nav{ display:flex; align-items:center; gap:14px; margin-top:28px; }
+    .nex-nav-btn{
+      width:38px; height:38px; border-radius:50%;
+      border:1px solid var(--nex-border); color:var(--nex-text-dim);
+      display:inline-flex; align-items:center; justify-content:center;
+      font-family:var(--nex-mono); font-size:1em; cursor:pointer; user-select:none;
+      transition:color 0.2s ease, border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+    .nex-nav-btn:hover{ color:var(--nex-accent); border-color:var(--nex-accent-line); background:var(--nex-accent-soft); transform:translateY(-1px); }
+    .nex-nav-btn:active{ transform:translateY(0) scale(0.94); }
+    .nex-nav-count{ font-family:var(--nex-mono); font-size:0.8em; color:var(--nex-text-dim); letter-spacing:0.08em; }
+    .nex-nav-count b{ color:var(--nex-accent); font-weight:600; }
+
+    .nex-shot{
+      border:1px solid var(--nex-border); border-radius:10px; overflow:hidden;
+      background:#0f151c; box-shadow:0 30px 80px -20px rgba(0,0,0,0.5);
+      transition:transform 0.5s var(--nex-ease), box-shadow 0.5s ease;
+    }
+    .nex-carousel-panel:hover .nex-shot{
+      transform:translateY(-4px); box-shadow:0 40px 90px -20px rgba(0,0,0,0.62);
+    }
+
+    /* ---------- FINAL CTA ---------- */
+    .nex-final-cta{
+      text-align:center; padding:140px 0;
+      background:radial-gradient(ellipse 60% 100% at 50% 100%, rgba(255,176,0,0.06), transparent);
+      border-top:1px solid var(--nex-border);
+    }
+    .nex-final-cta h2{ font-family:var(--nex-mono); font-size:clamp(1.8em, 4vw, 2.8em); margin-bottom:20px; color:var(--nex-text); }
+    .nex-final-cta p{ color:var(--nex-text-dim); margin-bottom:36px; }
+
+    /* ---------- MOTION ----------
+       Everything here is additive: the page is complete and readable with all
+       of it switched off, which is what the reduce block at the bottom does. */
+    @keyframes nex-rise{ from{ opacity:0; transform:translateY(22px); } to{ opacity:1; transform:none; } }
+    @keyframes nex-shot-in{
+      from{ opacity:0; transform:translateX(-50%) translateY(34px) scale(1.015); }
+      to{ opacity:0.5; transform:translateX(-50%); }
+    }
+    @keyframes nex-drift{
+      0%,100%{ opacity:0.55; transform:translate3d(-3%,0,0) scale(1); }
+      50%{ opacity:1; transform:translate3d(3%,2%,0) scale(1.08); }
+    }
+
+    @media (prefers-reduced-motion: no-preference){
+      /* Hero, on load: one staggered rise rather than four separate ideas. */
+      .nex-hero-content > *{ animation:nex-rise 0.85s var(--nex-ease) both; }
+      .nex-hero-content > h1{ animation-delay:0.06s; }
+      .nex-hero-content > .nex-tagline{ animation-delay:0.14s; }
+      .nex-hero-content > .nex-cta-group{ animation-delay:0.22s; }
+      .nex-hero-shot{ animation:nex-shot-in 1.3s var(--nex-ease) both; }
+      .nex-hero-bg::before{ animation:nex-drift 16s ease-in-out infinite; }
+      .nex-scroll-cue{ animation:nex-rise 0.85s var(--nex-ease) 0.4s both; }
+    }
+
+    /* Scroll-linked reveals, where the browser can do them without a script.
+       Unsupported browsers simply get the finished state. */
+    @supports (animation-timeline: view()){
+      @media (prefers-reduced-motion: no-preference){
+        .nex-section-head,
+        .nex-feature-card,
+        .nex-carousel,
+        .nex-final-cta .nex-wrap > *{
+          animation:nex-rise linear both;
+          animation-timeline:view();
+          animation-range:entry 0% cover 30%;
+        }
+        .nex-feature-grid .nex-feature-card:nth-child(3n+2){ animation-range:entry 0% cover 36%; }
+        .nex-feature-grid .nex-feature-card:nth-child(3n+3){ animation-range:entry 0% cover 42%; }
+        .nex-final-cta .nex-wrap > .nex-cta-group{ animation-range:entry 0% cover 38%; }
+      }
+    }
+
+    @media (max-width: 860px){
+      .nex-feature-grid{ grid-template-columns:repeat(2,1fr); }
+      .nex-carousel-panel{ grid-template-columns:1fr; gap:40px; }
+      .nex-carousel-tabs{ margin-bottom:40px; }
+      .nex-carousel-tab{ padding:9px 16px; }
+    }
+    @media (max-width: 560px){
+      .nex-feature-grid{ grid-template-columns:1fr; }
+      .nex-tab-num{ display:none; }
+    }
+    @media (prefers-reduced-motion: reduce){
+      .nex-page *, .nex-page *::before, .nex-page *::after{
+        animation-duration:0.001ms !important;
+        animation-iteration-count:1 !important;
+        transition-duration:0.001ms !important;
+        transition-delay:0s !important;
+      }
+      .nex-hero-shot{ opacity:0.5; }
+    }
+  </style>
+{% endblock %}
+
+{% block tabs %}
+  {{ super() }}
+<div class="nex-page">
+
+  <section class="nex-hero">
+    <div class="nex-hero-bg">
+      <img class="nex-hero-shot" src="{{ 'assets/images/home/challenge_details.webp' | url }}" alt="NexCTF challenge details">
+    </div>
+    <div class="nex-hero-scrim"></div>
+
+    <div class="nex-wrap nex-hero-content">
+      <h1>Nex<span class="nex-x">CTF</span></h1>
+      <p class="nex-tagline">
+        A self-hosted, extensible Capture The Flag platform.
+      </p>
+      <div class="nex-cta-group">
+        <a href="{{ 'documentation/quickstart/' | url }}" class="nex-btn nex-btn-primary">Quickstart →</a>
+        <a href="{{ 'documentation/' | url }}" class="nex-btn nex-btn-ghost">Documentation</a>
+      </div>
+    </div>
+
+    <div class="nex-scroll-cue">Scroll</div>
+  </section>
+
+  <section class="nex-features nex-section" id="features">
+    <div class="nex-wrap">
+      <div class="nex-section-head">
+        <span class="nex-section-label">Features</span>
+        <h2>Everything you need to run a CTF</h2>
+        <p>From challenge to prize-giving, without stitching together ten different tools.</p>
+      </div>
+
+      <div class="nex-feature-grid">
+        <div class="nex-feature-card">
+          <svg class="nex-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 21V4a1 1 0 0 1 1-1h9l6 6v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M14 3v6h6"/></svg>
+          <h3>Challenges &amp; scoring</h3>
+          <p>Sequential challenges with prerequisites, multi-question support with per-question scoring, and text, code, multiple-choice, or long-text solutions.</p>
+        </div>
+        <div class="nex-feature-card">
+          <svg class="nex-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/></svg>
+          <h3>Live scoreboard</h3>
+          <p>Team-based scoring with configurable max team size, wrong-answer penalties, and a cached real-time scoreboard over SSE. Manual adjustments can be tied to a challenge, so teams see the reason where it applies.</p>
+        </div>
+        <div class="nex-feature-card">
+          <svg class="nex-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4Z"/><path d="M9 12l2 2 4-4"/></svg>
+          <h3>Accounts &amp; access</h3>
+          <p>TOTP 2FA, API tokens scoped to per-group read/write permissions, session management for users and admins, OAuth2/OpenID Connect login, and a built-in OAuth2/OIDC server.</p>
+        </div>
+        <div class="nex-feature-card">
+          <svg class="nex-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          <h3>Fair play, with evidence</h3>
+          <p>Trap flags that never score but raise a security event, hidden canary tokens that catch AI-assisted answers, per-team submission rate limits, and a full audit log streamed live.</p>
+        </div>
+        <div class="nex-feature-card">
+          <svg class="nex-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+          <h3>Backup &amp; restore</h3>
+          <p>Dump the database to object storage from the admin panel or on a cron schedule with automatic pruning, and restore it in place: migrations, plugin migrations and restart included.</p>
+        </div>
+        <div class="nex-feature-card">
+          <svg class="nex-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><circle cx="4" cy="6" r="2"/><circle cx="20" cy="6" r="2"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/><path d="M6 7l4 3M18 7l-4 3M6 17l4-3M18 17l-4-3"/></svg>
+          <h3>Plugin system</h3>
+          <p>Register custom challenge types, solution strategies, scheduler jobs, and frontend components. Plugins own their DB tables via Alembic migrations.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="nex-section" id="screens">
+    <div class="nex-wrap">
+      <div class="nex-section-head">
+        <span class="nex-section-label">Preview</span>
+        <h2>NexCTF in action</h2>
+        <p>A look at the screens your players and admins use every day.</p>
+      </div>
+
+      {#- One entry per screen. The radios, tabs, panels, counter and the
+          prev/next wrap-around all derive from this list. The `:checked`
+          pairings in the stylesheet are written out per id, so adding a
+          fourth entry means adding a fourth pair there too. -#}
+      {% set screens = [
+        {
+          "tab": "Challenges",
+          "title": "Multi-question, prerequisite-aware challenges",
+          "lead": "Each challenge can hold several scored questions, with S3-backed attachments, hints, and tags.",
+          "points": [
+            "Prerequisite enforcement between challenges",
+            "Per-question points and hint costs",
+            "Text, code, multiple-choice, or long-text answers",
+          ],
+          "image": "assets/images/home/challenges.webp",
+          "alt": "NexCTF challenges list",
+        },
+        {
+          "tab": "Scoreboard",
+          "title": "A ranking players want to keep checking",
+          "lead": "A cached, real-time scoreboard pushed over Server-Sent Events, with full solve history per team.",
+          "points": [
+            "Live updates, no page refresh",
+            "Configurable max team size",
+            "Manual bonus/penalty adjustments with reason tracking",
+          ],
+          "image": "assets/images/home/scoreboard.webp",
+          "alt": "NexCTF live scoreboard",
+        },
+        {
+          "tab": "Administration",
+          "title": "Full control over your competition",
+          "lead": "An admin dashboard with audit logging, a file manager, broadcast notifications, and a one-shot/cron job scheduler.",
+          "points": [
+            "Full CRUD for challenges, questions, categories, hints, and tags",
+            "Database backup and restore, by hand or on a schedule",
+            "Custom Markdown pages and per-competition settings",
+          ],
+          "image": "assets/images/home/admin_dashboard.webp",
+          "alt": "NexCTF admin dashboard",
+        },
+      ] %}
+
+      <div class="nex-carousel">
+        {% for s in screens %}
+        <input type="radio" name="nex-screen" id="screen-{{ loop.index }}" class="nex-carousel-radio"{{ ' checked' if loop.first }}>
+        {%- endfor %}
+
+        <div class="nex-carousel-tabs">
+          {% for s in screens %}
+          <label for="screen-{{ loop.index }}" class="nex-carousel-tab"><span class="nex-tab-num">{{ '%02d' | format(loop.index) }}</span>{{ s.tab }}</label>
+          {%- endfor %}
+        </div>
+
+        <div class="nex-carousel-panels">
+          {% for s in screens %}
+          {%- set prev = screens | length if loop.first else loop.index - 1 %}
+          {%- set next = 1 if loop.last else loop.index + 1 %}
+          <div class="nex-carousel-panel" id="panel-{{ loop.index }}">
+            <div class="nex-screen-text">
+              <h3>{{ s.title }}</h3>
+              <p>{{ s.lead }}</p>
+              <ul>
+                {% for point in s.points %}<li>{{ point }}</li>
+                {% endfor -%}
+              </ul>
+              <div class="nex-screen-nav">
+                <label class="nex-nav-btn" for="screen-{{ prev }}" title="Previous screen">&#8592;</label>
+                <span class="nex-nav-count"><b>{{ '%02d' | format(loop.index) }}</b> / {{ '%02d' | format(screens | length) }}</span>
+                <label class="nex-nav-btn" for="screen-{{ next }}" title="Next screen">&#8594;</label>
+              </div>
+            </div>
+            <img class="nex-shot" src="{{ s.image | url }}" alt="{{ s.alt }}">
+          </div>
+          {%- endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="nex-final-cta">
+    <div class="nex-wrap">
+      <span class="nex-section-label">Ready to get started?</span>
+      <h2>Spin up your first CTF in minutes</h2>
+      <p>One Docker Compose stack: Python/FastAPI backend, React frontend, Postgres, and Valkey.</p>
+      <div class="nex-cta-group">
+        <a href="{{ 'documentation/quickstart/' | url }}" class="nex-btn nex-btn-primary">Quickstart →</a>
+        <a href="https://github.com/NexCTF/NexCTF" class="nex-btn nex-btn-ghost" target="_blank" rel="noopener">Star on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+
+</div>
+{% endblock %}
