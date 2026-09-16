@@ -1,0 +1,6 @@
+<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>NexCTF icon</title>
+<desc>NexCTF icon-only mark: a rounded square with a terminal-style chevron, simplified for legibility at favicon size.</desc>
+<rect width="80" height="80" rx="16" fill="#3B82F6"/>
+<path d="M24 27 L46 40 L24 53" fill="none" stroke="#04122B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

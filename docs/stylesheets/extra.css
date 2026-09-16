@@ -1,3 +1,96 @@
+/* `@import` has to come before every other rule in the file. Space Grotesk is
+   the heading face of the brand; the body and code faces are requested by the
+   theme itself, from `font` in "zensical.toml". */
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap");
+
+/* ---------------------------------------------------------------------------
+   Brand palette
+   ---------------------------------------------------------------------------
+   The same tokens the application declares in its own stylesheet, so the docs
+   and the product read as one thing. The values are duplicated here rather
+   than imported: NexCTF ships them inside a bundled Tailwind theme, which this
+   site does not build.
+
+   Both palette entries are declared as `custom` in "zensical.toml", so the
+   theme applies no color set of its own and these are the only definitions.
+--------------------------------------------------------------------------- */
+
+:root {
+  --nex-bg: #0b1210;          /* page background, dark scheme */
+  --nex-surface: #132420;     /* cards, code blocks, footer */
+  --nex-accent: #3b82f6;      /* electric blue, the brand accent */
+  --nex-accent-hover: #60a0fa;
+  --nex-accent-strong: #306ac9; /* the accent, darkened to stay readable on white */
+  --nex-accent-on: #04122b;    /* ink placed on an accent fill */
+  --nex-text-primary: #edefed;
+  --nex-text-secondary: #8c948f;
+}
+
+/* The header and its tab bar are painted with the brand near-black in both
+   schemes, the way the application paints its own navigation bar. */
+[data-md-color-primary="custom"] {
+  --md-primary-fg-color: var(--nex-bg);
+  --md-primary-fg-color--light: var(--nex-surface);
+  --md-primary-fg-color--dark: #050908;
+  --md-primary-bg-color: var(--nex-text-primary);
+  --md-primary-bg-color--light: var(--nex-text-secondary);
+}
+
+[data-md-color-accent="custom"] {
+  --md-accent-fg-color: var(--nex-accent);
+  --md-accent-fg-color--transparent: rgba(59, 130, 246, 0.1);
+  --md-accent-bg-color: var(--nex-accent-on);
+  --md-accent-bg-color--light: rgba(4, 18, 43, 0.7);
+}
+
+/* Links default to the primary color, which is the near-black above. Point
+   them at the accent instead, per scheme: the plain accent clears 4.5:1 on the
+   dark surface but not on white, where the darkened shade is what the app
+   itself falls back to. */
+[data-md-color-scheme="default"] {
+  --md-typeset-a-color: var(--nex-accent-strong);
+}
+
+[data-md-color-scheme="slate"] {
+  --md-typeset-a-color: var(--nex-accent);
+
+  --md-default-bg-color: var(--nex-bg);
+  --md-default-bg-color--light: rgba(11, 18, 16, 0.7);
+  --md-default-bg-color--lighter: rgba(11, 18, 16, 0.3);
+  --md-default-bg-color--lightest: rgba(11, 18, 16, 0.12);
+
+  --md-default-fg-color: var(--nex-text-primary);
+  --md-default-fg-color--light: var(--nex-text-secondary);
+  --md-default-fg-color--lighter: rgba(237, 239, 237, 0.32);
+  --md-default-fg-color--lightest: rgba(237, 239, 237, 0.12);
+
+  --md-code-bg-color: var(--nex-surface);
+  --md-code-fg-color: var(--nex-text-primary);
+
+  --md-footer-bg-color: var(--nex-surface);
+  --md-footer-bg-color--dark: var(--nex-bg);
+}
+
+/* Headings take the brand display face, as they do in the application. The
+   site title in the header is a heading in everything but markup. */
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4,
+.md-typeset h5,
+.md-typeset h6,
+.md-header__topic:first-child > .md-ellipsis {
+  font-family: "Space Grotesk", var(--md-text-font-family), sans-serif;
+  font-weight: 600;
+}
+
+/* The mark is a rounded square that reads as a solid block at header size, so
+   it needs the room the theme gives a wordmark rather than an icon. */
+.md-header__button.md-logo :is(img, svg) {
+  height: 1.4rem;
+  width: 1.4rem;
+}
+
 /* ---------------------------------------------------------------------------
    Page status: "wip"
    ---------------------------------------------------------------------------

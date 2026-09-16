@@ -13,7 +13,7 @@ Guides and reference for running and administering NexCTF.
 - [Deployment](deployment.md): production deployment, TLS, database backup and restore, scaling.
 - Settings: [Competition](settings/competition.md), [Security](settings/security.md), [Email](settings/email.md), [Visibility](settings/visibility.md), [Appearance](settings/appearance.md).
 - [Authentication](authentication.md): registration, login, 2FA, sessions, scoped API tokens, and OAuth2/OIDC in both directions.
-- [Customization](customization.md): branding, logo, colors, custom CSS.
+- [Customization](customization.md): what to rebrand, in what order, and where each piece of it lives.
 
 ## Content
 
