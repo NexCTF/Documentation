@@ -217,6 +217,169 @@
         "x-token-scope": "write:admin.backup"
       }
     },
+    "/api/v1/admin/bundle/export": {
+      "get": {
+        "tags": [
+          "Bundle"
+        ],
+        "summary": "Export Bundle",
+        "description": "Build a content archive and hand it straight back as a download.\n\n**Required token scope:** `read:admin.bundle`",
+        "operationId": "export_bundle_api_v1_admin_bundle_export_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "include_files",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Include Files"
+            }
+          },
+          {
+            "name": "include_secrets",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Secrets"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:admin.bundle"
+      }
+    },
+    "/api/v1/admin/bundle/import/plan": {
+      "post": {
+        "tags": [
+          "Bundle"
+        ],
+        "summary": "Plan Import",
+        "description": "Stage an uploaded archive and return what importing it would do.\n\n**Required token scope:** `write:admin.bundle`",
+        "operationId": "plan_import_api_v1_admin_bundle_import_plan_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_plan_import_api_v1_admin_bundle_import_plan_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AdminBundlePlanRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "write:admin.bundle"
+      }
+    },
+    "/api/v1/admin/bundle/import/apply": {
+      "post": {
+        "tags": [
+          "Bundle"
+        ],
+        "summary": "Apply Import",
+        "description": "Apply a reviewed plan, re-deriving it from the staged archive first.\n\n**Required token scope:** `write:admin.bundle`",
+        "operationId": "apply_import_api_v1_admin_bundle_import_apply_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminBundleApply"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AdminBundleApplyResult_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "write:admin.bundle"
+      }
+    },
     "/api/v1/admin/challenge/types": {
       "get": {
         "tags": [
@@ -5200,6 +5363,41 @@
         "description": "**Required token scope:** `read:admin.config`"
       }
     },
+    "/api/v1/admin/plugins/manifest": {
+      "get": {
+        "tags": [
+          "Plugins"
+        ],
+        "summary": "Get Admin Plugin Manifest",
+        "operationId": "get_admin_plugin_manifest_api_v1_admin_plugins_manifest_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PluginManifestEntry"
+                  },
+                  "type": "array",
+                  "title": "Response Get Admin Plugin Manifest Api V1 Admin Plugins Manifest Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "read:admin.config",
+        "description": "**Required token scope:** `read:admin.config`"
+      }
+    },
     "/api/v1/admin/question": {
       "get": {
         "tags": [
@@ -6983,6 +7181,110 @@
         },
         "x-token-scope": "write:admin.scoreboard",
         "description": "**Required token scope:** `write:admin.scoreboard`"
+      }
+    },
+    "/api/v1/admin/session/addresses": {
+      "get": {
+        "tags": [
+          "Session"
+        ],
+        "summary": "Get Session Addresses",
+        "description": "Session totals over *window*, plus every address they are reached from.\n\n**Required token scope:** `read:admin.user`",
+        "operationId": "get_session_addresses_api_v1_admin_session_addresses_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "window",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SessionWindow",
+              "default": "live"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AdminSessionOverviewRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:admin.user"
+      }
+    },
+    "/api/v1/admin/session/failed-logins": {
+      "get": {
+        "tags": [
+          "Session"
+        ],
+        "summary": "Get Failed Logins",
+        "description": "Failed logins grouped by address: many usernames from one is stuffing.\n\n**Required token scope:** `read:admin.user`",
+        "operationId": "get_failed_logins_api_v1_admin_session_failed_logins_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "window",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SessionWindow",
+              "default": "day"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AdminFailedLoginOverviewRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:admin.user"
       }
     },
     "/api/v1/admin/solution/types": {
@@ -8925,7 +9227,7 @@
           "Team"
         ],
         "summary": "Get Team Score Detail",
-        "description": "Score breakdown ignoring ``ctf.freeze_time`` \u2014 admins see live numbers.\n\n**Required token scope:** `read:admin.team`",
+        "description": "Score breakdown ignoring ``ctf.freeze_time`` — admins see live numbers.\n\n**Required token scope:** `read:admin.team`",
         "operationId": "get_team_score_detail_api_v1_admin_team__uuid__score_get",
         "security": [
           {
@@ -10135,6 +10437,93 @@
   },
   "components": {
     "schemas": {
+      "Action": {
+        "type": "string",
+        "enum": [
+          "create",
+          "update",
+          "event_state",
+          "recreate",
+          "delete",
+          "conflict",
+          "blocked",
+          "skipped",
+          "unchanged"
+        ],
+        "title": "Action"
+      },
+      "AdminAddressAccountRead": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "team_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team Id"
+          },
+          "team_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team Name"
+          },
+          "session_count": {
+            "type": "integer",
+            "title": "Session Count"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen At"
+          },
+          "user_agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Agent"
+          },
+          "opened_here": {
+            "type": "boolean",
+            "title": "Opened Here"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "username",
+          "team_id",
+          "team_name",
+          "session_count",
+          "last_seen_at",
+          "user_agent",
+          "opened_here"
+        ],
+        "title": "AdminAddressAccountRead"
+      },
       "AdminBackupList": {
         "properties": {
           "backups": {
@@ -10187,6 +10576,16 @@
               }
             ],
             "title": "Revision"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BackupSource"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -10194,9 +10593,142 @@
           "key",
           "size",
           "created_at",
-          "revision"
+          "revision",
+          "source"
         ],
         "title": "AdminBackupRead"
+      },
+      "AdminBundleApply": {
+        "properties": {
+          "import_key": {
+            "type": "string",
+            "title": "Import Key"
+          },
+          "prune": {
+            "type": "boolean",
+            "title": "Prune",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "import_key"
+        ],
+        "title": "AdminBundleApply",
+        "description": "Apply every write in a reviewed plan."
+      },
+      "AdminBundleApplyResult": {
+        "properties": {
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Counts"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/PlanEntry"
+            },
+            "type": "array",
+            "title": "Entries"
+          }
+        },
+        "type": "object",
+        "required": [
+          "counts",
+          "entries"
+        ],
+        "title": "AdminBundleApplyResult",
+        "description": "What the apply actually wrote."
+      },
+      "AdminBundleManifestRead": {
+        "properties": {
+          "format_version": {
+            "type": "integer",
+            "title": "Format Version"
+          },
+          "nexctf_version": {
+            "type": "string",
+            "title": "Nexctf Version"
+          },
+          "exported_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Exported At"
+          },
+          "challenge_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Challenge Types"
+          },
+          "solve_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Solve Types"
+          },
+          "plugins": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Plugins"
+          }
+        },
+        "type": "object",
+        "required": [
+          "format_version",
+          "nexctf_version",
+          "exported_at",
+          "challenge_types",
+          "solve_types",
+          "plugins"
+        ],
+        "title": "AdminBundleManifestRead",
+        "description": "What the uploaded archive says about itself."
+      },
+      "AdminBundlePlanRead": {
+        "properties": {
+          "import_key": {
+            "type": "string",
+            "title": "Import Key"
+          },
+          "prune": {
+            "type": "boolean",
+            "title": "Prune"
+          },
+          "manifest": {
+            "$ref": "#/components/schemas/AdminBundleManifestRead"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Counts"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/PlanEntry"
+            },
+            "type": "array",
+            "title": "Entries"
+          }
+        },
+        "type": "object",
+        "required": [
+          "import_key",
+          "prune",
+          "manifest",
+          "counts",
+          "entries"
+        ],
+        "title": "AdminBundlePlanRead",
+        "description": "A reviewable plan, plus the staged key ``apply`` re-derives it from."
       },
       "AdminChallengeRead": {
         "properties": {
@@ -10847,6 +11379,116 @@
           "category"
         ],
         "title": "AdminEventRead"
+      },
+      "AdminFailedLoginAddressRead": {
+        "properties": {
+          "ip": {
+            "type": "string",
+            "title": "Ip"
+          },
+          "attempt_count": {
+            "type": "integer",
+            "title": "Attempt Count"
+          },
+          "username_count": {
+            "type": "integer",
+            "title": "Username Count"
+          },
+          "known_username_count": {
+            "type": "integer",
+            "title": "Known Username Count"
+          },
+          "last_attempt_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Attempt At"
+          },
+          "usernames": {
+            "items": {
+              "$ref": "#/components/schemas/AdminFailedLoginUsernameRead"
+            },
+            "type": "array",
+            "title": "Usernames"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ip",
+          "attempt_count",
+          "username_count",
+          "known_username_count",
+          "last_attempt_at",
+          "usernames"
+        ],
+        "title": "AdminFailedLoginAddressRead"
+      },
+      "AdminFailedLoginOverviewRead": {
+        "properties": {
+          "attempt_count": {
+            "type": "integer",
+            "title": "Attempt Count"
+          },
+          "address_count": {
+            "type": "integer",
+            "title": "Address Count"
+          },
+          "spray_address_count": {
+            "type": "integer",
+            "title": "Spray Address Count"
+          },
+          "addresses": {
+            "items": {
+              "$ref": "#/components/schemas/AdminFailedLoginAddressRead"
+            },
+            "type": "array",
+            "title": "Addresses"
+          }
+        },
+        "type": "object",
+        "required": [
+          "attempt_count",
+          "address_count",
+          "spray_address_count",
+          "addresses"
+        ],
+        "title": "AdminFailedLoginOverviewRead"
+      },
+      "AdminFailedLoginUsernameRead": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "attempt_count": {
+            "type": "integer",
+            "title": "Attempt Count"
+          },
+          "last_attempt_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Attempt At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "user_id",
+          "attempt_count",
+          "last_attempt_at"
+        ],
+        "title": "AdminFailedLoginUsernameRead"
       },
       "AdminFeedbackRead": {
         "properties": {
@@ -11667,7 +12309,7 @@
           "endpoints"
         ],
         "title": "AdminOAuthClientCreated",
-        "description": "Returned once at creation \u2014 includes the raw client_secret (shown once)."
+        "description": "Returned once at creation — includes the raw client_secret (shown once)."
       },
       "AdminOAuthClientRead": {
         "properties": {
@@ -12268,6 +12910,21 @@
             "type": "boolean",
             "title": "Is Official"
           },
+          "is_disabled": {
+            "type": "boolean",
+            "title": "Is Disabled"
+          },
+          "has_config": {
+            "type": "boolean",
+            "title": "Has Config"
+          },
+          "missing_bundles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Bundles"
+          },
           "load_error": {
             "anyOf": [
               {
@@ -12292,7 +12949,10 @@
           "homepage_url",
           "is_builtin",
           "is_active",
-          "is_official"
+          "is_official",
+          "is_disabled",
+          "has_config",
+          "missing_bundles"
         ],
         "title": "AdminPluginRead"
       },
@@ -13169,6 +13829,94 @@
           "last_solve_at"
         ],
         "title": "AdminScoreboardEntry"
+      },
+      "AdminSessionOverviewRead": {
+        "properties": {
+          "session_count": {
+            "type": "integer",
+            "title": "Session Count"
+          },
+          "account_count": {
+            "type": "integer",
+            "title": "Account Count"
+          },
+          "address_count": {
+            "type": "integer",
+            "title": "Address Count"
+          },
+          "shared_address_count": {
+            "type": "integer",
+            "title": "Shared Address Count"
+          },
+          "cross_team_address_count": {
+            "type": "integer",
+            "title": "Cross Team Address Count"
+          },
+          "addresses": {
+            "items": {
+              "$ref": "#/components/schemas/AdminSharedAddressRead"
+            },
+            "type": "array",
+            "title": "Addresses"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_count",
+          "account_count",
+          "address_count",
+          "shared_address_count",
+          "cross_team_address_count",
+          "addresses"
+        ],
+        "title": "AdminSessionOverviewRead"
+      },
+      "AdminSharedAddressRead": {
+        "properties": {
+          "ip": {
+            "type": "string",
+            "title": "Ip"
+          },
+          "account_count": {
+            "type": "integer",
+            "title": "Account Count"
+          },
+          "session_count": {
+            "type": "integer",
+            "title": "Session Count"
+          },
+          "same_team": {
+            "type": "boolean",
+            "title": "Same Team"
+          },
+          "team_count": {
+            "type": "integer",
+            "title": "Team Count"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen At"
+          },
+          "accounts": {
+            "items": {
+              "$ref": "#/components/schemas/AdminAddressAccountRead"
+            },
+            "type": "array",
+            "title": "Accounts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ip",
+          "account_count",
+          "session_count",
+          "same_team",
+          "team_count",
+          "last_seen_at",
+          "accounts"
+        ],
+        "title": "AdminSharedAddressRead"
       },
       "AdminSolutionRead": {
         "properties": {
@@ -14084,6 +14832,34 @@
           "id"
         ],
         "title": "AdminUserUpdate"
+      },
+      "BackupSource": {
+        "type": "string",
+        "enum": [
+          "manual",
+          "auto",
+          "pre_restore"
+        ],
+        "title": "BackupSource"
+      },
+      "Body_plan_import_api_v1_admin_bundle_import_plan_post": {
+        "properties": {
+          "upload": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Upload"
+          },
+          "prune": {
+            "type": "boolean",
+            "title": "Prune",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "upload"
+        ],
+        "title": "Body_plan_import_api_v1_admin_bundle_import_plan_post"
       },
       "Body_update_file_api_v1_admin_file__uuid__put": {
         "properties": {
@@ -16127,6 +16903,21 @@
         ],
         "title": "CustomFieldType"
       },
+      "EntityKind": {
+        "type": "string",
+        "enum": [
+          "challenge",
+          "question",
+          "hint",
+          "solution",
+          "file",
+          "page",
+          "link",
+          "custom_field",
+          "config"
+        ],
+        "title": "EntityKind"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -18029,6 +18820,192 @@
         "title": "PaginationType",
         "description": "Pagination strategy selector for :meth:`.AsyncCrud.paginate`."
       },
+      "PlanEntry": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/EntityKind"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "action": {
+            "$ref": "#/components/schemas/Action"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "changes": {
+            "additionalProperties": {
+              "items": {},
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Changes",
+            "default": {}
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "id",
+          "label",
+          "action"
+        ],
+        "title": "PlanEntry",
+        "description": "One entity's fate under the plan."
+      },
+      "PluginManifestEntry": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "remote_entry": {
+            "type": "string",
+            "title": "Remote Entry"
+          },
+          "integrity": {
+            "type": "string",
+            "title": "Integrity"
+          },
+          "stylesheet": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PluginStylesheet"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "slots": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Slots"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/PluginPage"
+            },
+            "type": "array",
+            "title": "Pages"
+          },
+          "challenge_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Challenge Types"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "remote_entry",
+          "integrity",
+          "stylesheet",
+          "slots",
+          "pages",
+          "challenge_types"
+        ],
+        "title": "PluginManifestEntry"
+      },
+      "PluginPage": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              }
+            ],
+            "title": "Label"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "section": {
+            "type": "string",
+            "title": "Section"
+          }
+        },
+        "type": "object",
+        "required": [
+          "path",
+          "label",
+          "icon",
+          "section"
+        ],
+        "title": "PluginPage"
+      },
+      "PluginStylesheet": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "integrity": {
+            "type": "string",
+            "title": "Integrity"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url",
+          "integrity"
+        ],
+        "title": "PluginStylesheet"
+      },
       "PublicAdjustmentDetail": {
         "properties": {
           "id": {
@@ -18449,6 +19426,78 @@
         "type": "object",
         "title": "Response[AdminBackupRead]"
       },
+      "Response_AdminBundleApplyResult_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdminBundleApplyResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[AdminBundleApplyResult]"
+      },
+      "Response_AdminBundlePlanRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdminBundlePlanRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[AdminBundlePlanRead]"
+      },
       "Response_AdminCustomFieldRead_": {
         "properties": {
           "status": {
@@ -18520,6 +19569,42 @@
         },
         "type": "object",
         "title": "Response[AdminCustomFieldValueRead]"
+      },
+      "Response_AdminFailedLoginOverviewRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdminFailedLoginOverviewRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[AdminFailedLoginOverviewRead]"
       },
       "Response_AdminFileDetail_": {
         "properties": {
@@ -19024,6 +20109,42 @@
         },
         "type": "object",
         "title": "Response[AdminScoreboard]"
+      },
+      "Response_AdminSessionOverviewRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdminSessionOverviewRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[AdminSessionOverviewRead]"
       },
       "Response_AdminSubmissionRead_": {
         "properties": {
@@ -19710,6 +20831,16 @@
           "label"
         ],
         "title": "ScoreboardCustomField"
+      },
+      "SessionWindow": {
+        "type": "string",
+        "enum": [
+          "live",
+          "day",
+          "all"
+        ],
+        "title": "SessionWindow",
+        "description": "Time span the admin session pivot groups addresses over."
       },
       "TaskStatus": {
         "type": "string",

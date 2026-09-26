@@ -83,8 +83,10 @@ nav = [
     { "Administration" = [
       { "Users & Teams" = "documentation/users-teams.md" },
       { "Events" = "documentation/events.md" },
+      { "Security" = "documentation/security.md" },
       { "Submissions" = "documentation/submissions.md" },
       { "Feedback" = "documentation/feedback.md" },
+      { "Sync" = "documentation/sync.md" },
     ] },
   ] },
   { "Plugins" = [

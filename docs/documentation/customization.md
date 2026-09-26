@@ -49,5 +49,5 @@ public. The custom fields themselves are yours to define, under
 
 [Custom CSS](settings/appearance.md#custom-css) covers small visual changes without
 touching the code. Past that, the [plugin system](../plugins/index.md) is the supported
-way to add behavior of your own: challenge types, solution strategies, scheduler jobs
-and frontend components, without forking.
+way to add behavior of your own: challenge types, solution strategies, scheduler jobs,
+background tasks, API endpoints, and frontend components or whole pages, without forking.

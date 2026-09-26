@@ -4,9 +4,10 @@ icon: lucide/puzzle
 
 # Plugins
 
-A plugin is a Python package installed next to NexCTF that adds new types to the
-platform: challenge types, solution types, scheduler job types, its own settings
-section, and sometimes a panel in the player or admin interface.
+A plugin is a Python package installed next to NexCTF that extends the platform:
+challenge types, solution types, scheduler job types, background tasks, API endpoints,
+its own settings section, and sometimes panels or whole pages in the player or admin
+interface.
 
 ## Official plugins
 

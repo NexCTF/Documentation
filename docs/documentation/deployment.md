@@ -23,7 +23,9 @@ The `app` container is not just the API. A supervisor inside it runs three proce
 
 - **caddy**: terminates TLS, serves the built React frontend, proxies `/api/*` to the backend.
 - **backend**: the FastAPI application (`WORKERS` uvicorn workers).
-- **scheduler**: the worker that ticks scheduled jobs once a minute.
+- **worker**: the background task runner. It fires [scheduled jobs](scheduler.md), runs
+  plugin tasks, and does routine maintenance. Its queue lives in PostgreSQL tables,
+  not in the cache.
 
 !!! info "The frontend is not a separate container"
     It is built at image build time and served as static files by Caddy from inside the
@@ -57,6 +59,7 @@ next to `compose.yml`, or from your orchestrator.
 | `TRUSTED_PROXY_COUNT` | `1` | Number of proxies in front of the app. See [Client IP addresses](#client-ip-addresses). |
 | `DEMO_DATA` | *(empty)* | `true` seeds example challenges, teams and submissions. Never on a real event. |
 | `NEXCTF_PLUGINS` | *(empty)* | Comma-separated plugin specifiers. See [Installing plugins](../plugins/installation.md). |
+| `NEXCTF_DISABLED_PLUGINS` | *(empty)* | Comma-separated plugin package names kept installed but not loaded. See [Disabling a plugin](../plugins/installation.md#disabling-a-plugin). |
 
 !!! danger "`SECRET_KEY` is mandatory outside development"
     With `ENVIRONMENT` set to anything other than `development`, the application refuses
@@ -222,7 +225,7 @@ On every start, before serving traffic, the `app` container:
 3. Runs plugin database migrations.
 4. Loads fixtures (plus demo data if `DEMO_DATA=true`).
 5. Creates the default admin account if it does not already exist.
-6. Starts Caddy, the backend and the scheduler.
+6. Starts Caddy, the backend and the worker.
 
 Any failure in steps 1 to 3 stops the container rather than starting a half-migrated
 instance. `docker compose logs app` has the reason, on a line starting with `[start]`.
@@ -277,16 +280,24 @@ rate-limit counters.
 
 **Admin → Backups** dumps the database without leaving the browser. **Backup now** runs
 `pg_dump` in PostgreSQL's custom format and stores the result in the S3 bucket under the
-`backups/` prefix, named for the moment it was taken and the schema version it was taken
-at:
+`backups/` prefix, named for the moment it was taken, what triggered it, and the schema
+version it was taken at:
 
 ```
-backups/nexctf-20260913T041500Z-d4a9c17e3b52.dump
+backups/nexctf-20260913T041500Z-manual-d4a9c17e3b52.dump
 ```
 
-That trailing component is the Alembic revision, and it is what makes a dump safe to
-restore later. Each row in the list can be downloaded to your own machine, restored, or
-deleted.
+The trailing component is the Alembic revision, and it is what makes a dump safe to
+restore later. The one before it is the source, shown in the list's **Source** column:
+
+| Source | Taken by |
+| --- | --- |
+| Manual | **Backup now**, or `POST /api/v1/admin/backup`. |
+| Scheduled | A `backup_database` job. |
+| Pre-restore | A restore, of the database it is about to replace. |
+
+Dumps taken before NexCTF 0.10.1 carry no source and show an empty cell. Each row in the
+list can be downloaded to your own machine, restored, or deleted.
 
 !!! warning "Backups cover the database only"
     Uploaded files live in the S3 bucket, not in the dump. Restoring an older database
@@ -303,18 +314,20 @@ deleted.
 A `backup_database` job in the [Scheduler](scheduler.md) takes the same dump on a cron
 expression, and its `keep_last` parameter prunes older ones afterwards, so the prefix
 does not grow without limit. Anything from `1` to `100` is accepted, and it defaults to
-`7`.
+`7`. Manual and scheduled dumps count towards it; pre-restore dumps never do, and are
+never pruned, so delete those by hand once you no longer need to undo a restore.
 
 ### Restoring
 
 **Restore** on a row replaces the entire database with that dump. The platform does the
 sequence for you:
 
-1. Stops the backend and the scheduler.
-2. Dumps the current database, so the restore itself can be rolled back.
+1. Stops the backend and the worker.
+2. Dumps the current database as a *Pre-restore* backup, so the restore itself can be
+   rolled back.
 3. Replaces the database (`pg_restore --clean --single-transaction`) and flushes the cache.
 4. Runs core and plugin migrations.
-5. Starts the backend and the scheduler again.
+5. Starts the backend and the worker again.
 
 The instance is unavailable for the length of that, and every user is signed out. The
 outcome of the last restore is reported back on the Backups page, whether it succeeded
@@ -334,7 +347,7 @@ schema forward.
     run
 
     ```bash
-    manager restore backups/nexctf-20260913T041500Z-d4a9c17e3b52.dump
+    manager restore backups/nexctf-20260913T041500Z-manual-d4a9c17e3b52.dump
     ```
 
     The host needs the PostgreSQL client binaries (`pg_dump`, `pg_restore`) for either
@@ -380,8 +393,10 @@ The knobs that matter, and how they interact:
   ceiling is `WORKERS × (POOL_SIZE + MAX_OVERFLOW)`, and the bundled PostgreSQL is
   started with `max_connections=350`. At the defaults that is `4 × 60 = 240`, within
   budget, but raising `WORKERS` without raising `max_connections` will exhaust it.
-- The **scheduler** is a single process that ticks once a minute. Do not run a second
-  copy of the `app` container without accounting for it; jobs would fire twice.
+- The **worker** is a single process per `app` container, separate from `WORKERS`. Jobs
+  are queued in PostgreSQL and claimed with row locks, so a job fires once even if a
+  second copy of the container runs a second worker, though the
+  [restore](#restoring) flow still assumes a single container.
 
 The scoreboard is cached and pushed over Server-Sent Events, so a large field of players
 watching the ranking does not translate into database load.

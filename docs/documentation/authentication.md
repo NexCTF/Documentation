@@ -86,6 +86,12 @@ failures as `user.login_failed` with the reason:
 A run of `unknown_user` failures from one address is the signature of username
 enumeration; a run of `bad_password` against one account is a brute-force attempt.
 
+[**Admin → Security → Failed logins**](security.md) does that grouping for you: failed attempts per
+address over the last 24 hours or the whole event, with the usernames each address
+tried. By default it lists only addresses that tried more than one username, which is
+what password spraying and credential stuffing look like; *Show every failing address*
+lists the rest, and the search box finds any address.
+
 ## Two-factor authentication
 
 Any user can enrol a TOTP authenticator from their own profile settings. It is per-user
@@ -125,6 +131,13 @@ currently using is marked as such, so they do not revoke their own by accident. 
 revocation is recorded in the [event log](events.md) as `admin.user_session_revoked`,
 with the target account in the metadata.
 
+[**Admin → Security → Sessions**](security.md) turns the same records around, listing addresses rather
+than accounts: who is signed in right now, or who signed in over the last 24 hours or
+the whole event, grouped by the address they came from. By default it lists only
+addresses shared by several accounts, each marked *Same team* or *Different teams*; the
+second is the quick way to spot one player running accounts on two teams. *Show every
+address* lists the rest, and the search box finds any address.
+
 !!! info "Revoking a session is not the same as locking an account out"
     A revoked session only ends that one device. Someone who still knows the password
     signs straight back in. To actually stop an account, deactivate it: that bumps the
@@ -157,6 +170,7 @@ $ curl -H "Authorization: Bearer nexctf_..." https://ctf.example.com/api/v1/info
 | Storage | Only a SHA-256 hash is stored. The value is shown once, at creation. |
 | Expiry | Optional. Without one the token is valid until revoked. |
 | Revocation | Immediate, from the same screen. |
+| Last used | Shown next to each token, or *Never used*. Updated at most once every five minutes, so a token in constant use can read up to five minutes behind. |
 | Permissions | Chosen per token, from the scopes below. A token never carries more than it was granted. |
 
 ### Token scopes
@@ -175,21 +189,25 @@ comes from the endpoint.
 | `team` | Teams. |
 | `notification` | Notifications and the event stream. |
 | `content` | Pages and site info. |
-| `plugin` | Endpoints a plugin mounts on the player side. |
+| `plugin.<key>` | Endpoints the plugin `<key>` mounts on the player side. One group per installed plugin. |
 
 Admins can additionally grant the administrative groups:
 
 | Group | Covers |
 | --- | --- |
 | `admin.challenge` | Challenges, questions, solutions, hints, files, submissions, score adjustments. |
-| `admin.user` | Users and custom fields. |
+| `admin.user` | Users, custom fields, and the session and failed-login views under **Admin → Security**. |
 | `admin.team` | Teams. |
 | `admin.scoreboard` | Scoreboard and statistics. |
 | `admin.notification` | Notifications and email. |
 | `admin.content` | Pages and links. |
 | `admin.config` | Settings, the event log, the scheduler, feedback, OAuth providers and clients, plugins. |
 | `admin.backup` | Creating, downloading, deleting and restoring [database backups](deployment.md#backups). |
-| `admin.plugin` | Endpoints a plugin mounts on the admin side. |
+| `admin.bundle` | Exporting the event's content as a bundle, and importing one, under [**Admin → Sync**](sync.md). |
+| `admin.plugin.<key>` | Endpoints the plugin `<key>` mounts on the admin side. One group per installed plugin. |
+
+A plugin group only exists while its plugin is loaded, so a token can only be granted
+one for a plugin that is installed and not disabled.
 
 Three rules are worth knowing before you build the list:
 
@@ -205,7 +223,8 @@ a replacement.
 !!! info "Every endpoint publishes the scope it needs"
     The OpenAPI schema carries an `x-token-scope` field on each operation, and the
     rendered API docs repeat it in the description, so you can read off exactly what a
-    script needs rather than granting broadly and hoping.
+    script needs rather than granting broadly and hoping. Public endpoints, which need
+    no authentication at all, carry no scope and say so instead.
 
 A request that reaches an endpoint outside its scopes is refused with **403
 `SCOPE-403`**, naming the scope it was missing.

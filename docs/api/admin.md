@@ -20,7 +20,7 @@ The endpoints behind `/api/v1/admin`, every one of them requiring an
 account with the `admin` role. See [How the API works](index.md) for
 authentication, the response envelope, pagination and errors.
 
-*Rendered from `/api/admin/openapi.json` at NexCTF 0.10.0.*
+*Rendered from `/api/admin/openapi.json` at NexCTF 0.11.0.*
 
 !!! warning "An admin scope is an admin credential"
     Scopes narrow what a token can reach, not who it acts as. A token carrying

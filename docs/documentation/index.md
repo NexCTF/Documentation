@@ -28,5 +28,7 @@ Guides and reference for running and administering NexCTF.
 
 - [Users & Teams](users-teams.md): users, teams, roles, permissions.
 - [Events](events.md): system event log across accounts, security, and gameplay.
+- [Security](security.md): sessions and failed logins grouped by address.
 - [Submissions](submissions.md): flag submission history and review.
 - [Feedback](feedback.md): player feedback on challenges.
+- [Sync](sync.md): export and import event content as a bundle.

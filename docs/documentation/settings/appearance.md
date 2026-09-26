@@ -136,10 +136,21 @@ Nothing validates what you type. The browser drops malformed rules one at a time
 than rejecting the block, so a stray brace silently takes the rest with it. Clearing the
 field restores the stock appearance immediately.
 
+!!! warning "External stylesheets and fonts are blocked"
+
+    The bundled image sends a Content Security Policy that only lets stylesheets and fonts
+    load from the instance itself. An `@import` of a hosted stylesheet, or an `@font-face`
+    pointing at a font CDN, is refused by the browser, and the console says why. Uploaded
+    files do not get around it either, since they are served from object storage on its
+    own hostname. To use a font of your own, embed it in the rule as a `data:` URL. Images
+    referenced with `url()` are not affected, as long as they are served over HTTPS.
+
 ## Uploading images
 
 The four image fields take a pasted URL or an upload. **Upload** stores the file in
 object storage, marks it public and fills in its URL, so the asset is served from the
 same origin as the app and appears in the [file manager](../files.md) like any other
 public file. An external URL works too, with the usual caveats: the host has to stay up
-for as long as the event runs, and it sees a request from every visitor.
+for as long as the event runs, and it sees a request from every visitor. It must be an
+`https://` URL, since the Content Security Policy blocks images served over plain
+HTTP.

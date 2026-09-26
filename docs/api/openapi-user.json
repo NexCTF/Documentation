@@ -424,6 +424,14 @@
             }
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
         "x-token-scope": "read:challenge",
         "description": "**Required token scope:** `read:challenge`"
       }
@@ -435,6 +443,14 @@
         ],
         "summary": "Get Challenge",
         "operationId": "get_challenge_api_v1_challenges__challenge_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
         "parameters": [
           {
             "name": "challenge_id",
@@ -688,7 +704,7 @@
           "File"
         ],
         "summary": "View Public File",
-        "description": "Redirect to a presigned S3 view URL for a publicly accessible file.\n\n**Required token scope:** `read:challenge`",
+        "description": "Redirect to a presigned S3 view URL for a publicly accessible file.\n\n**Authentication:** none required, this endpoint is public.",
         "operationId": "view_public_file_api_v1_file__uuid__view_get",
         "parameters": [
           {
@@ -721,8 +737,7 @@
               }
             }
           }
-        },
-        "x-token-scope": "read:challenge"
+        }
       }
     },
     "/api/v1/info": {
@@ -744,8 +759,7 @@
             }
           }
         },
-        "x-token-scope": "read:content",
-        "description": "**Required token scope:** `read:content`"
+        "description": "**Authentication:** none required, this endpoint is public."
       }
     },
     "/api/v1/info/me": {
@@ -1720,7 +1734,7 @@
           "Page"
         ],
         "summary": "List Published Pages",
-        "description": "Return a list of all published pages (slug, title, nav_placement).\n\n**Required token scope:** `read:content`",
+        "description": "Return a list of all published pages (slug, title, nav_placement).\n\n**Authentication:** none required, this endpoint is public.",
         "operationId": "list_published_pages_api_v1_page_get",
         "responses": {
           "200": {
@@ -1733,8 +1747,7 @@
               }
             }
           }
-        },
-        "x-token-scope": "read:content"
+        }
       }
     },
     "/api/v1/page/{slug}": {
@@ -1743,7 +1756,7 @@
           "Page"
         ],
         "summary": "Get Published Page",
-        "description": "Return a single published page by slug.\n\n**Required token scope:** `read:content`",
+        "description": "Return a single published page by slug.\n\n**Authentication:** none required, this endpoint is public.",
         "operationId": "get_published_page_api_v1_page__slug__get",
         "parameters": [
           {
@@ -1777,8 +1790,7 @@
               }
             }
           }
-        },
-        "x-token-scope": "read:content"
+        }
       }
     },
     "/api/v1/plugins/manifest": {
@@ -1804,8 +1816,7 @@
             }
           }
         },
-        "x-token-scope": "read:content",
-        "description": "**Required token scope:** `read:content`"
+        "description": "**Authentication:** none required, this endpoint is public."
       }
     },
     "/api/v1/scoreboard": {
@@ -1815,6 +1826,14 @@
         ],
         "summary": "Get Scoreboard Endpoint",
         "operationId": "get_scoreboard_endpoint_api_v1_scoreboard_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
         "parameters": [
           {
             "name": "bracket",
@@ -1867,6 +1886,14 @@
         ],
         "summary": "Get Scoreboard History Endpoint",
         "operationId": "get_scoreboard_history_endpoint_api_v1_scoreboard_history_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
         "parameters": [
           {
             "name": "limit",
@@ -1931,6 +1958,14 @@
         ],
         "summary": "Get Team Score Endpoint",
         "operationId": "get_team_score_endpoint_api_v1_scoreboard_team__team_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
         "parameters": [
           {
             "name": "team_id",
@@ -1975,7 +2010,7 @@
           "SSE"
         ],
         "summary": "Event Stream",
-        "description": "Authenticated SSE stream.\n\nEvent types emitted:\n- ``notification``     \u2014 new notification visible to this user\n- ``config_update``    \u2014 admin saved new config values\n- ``event``            \u2014 admin audit event\n\n**Required token scope:** `read:notification`",
+        "description": "Authenticated SSE stream.\n\nEvent types emitted:\n- ``notification``     — new notification visible to this user\n- ``config_update``    — admin saved new config values\n- ``event``            — admin audit event\n\n**Required token scope:** `read:notification`",
         "operationId": "event_stream_api_v1_stream_get",
         "responses": {
           "200": {
@@ -2021,7 +2056,7 @@
           "SSE"
         ],
         "summary": "Public Event Stream",
-        "description": "Public (unauthenticated) SSE stream.\n\nEvent types emitted:\n- ``config_update``  \u2014 admin saved new config values\n\n**Required token scope:** `read:notification`",
+        "description": "Public (unauthenticated) SSE stream.\n\nEvent types emitted:\n- ``config_update``  — admin saved new config values\n\n**Authentication:** none required, this endpoint is public.",
         "operationId": "public_event_stream_api_v1_stream_public_get",
         "responses": {
           "200": {
@@ -2049,8 +2084,7 @@
               }
             }
           }
-        },
-        "x-token-scope": "read:notification"
+        }
       }
     },
     "/api/v1/team/{team_id}": {
@@ -2061,6 +2095,14 @@
         "summary": "Get Team Profile",
         "description": "Public team profile: fields, members and challenge progress.\n\n**Required token scope:** `read:team`",
         "operationId": "get_team_profile_api_v1_team__team_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
         "parameters": [
           {
             "name": "team_id",
@@ -2561,9 +2603,25 @@
             "type": "string",
             "title": "Favicon Url"
           },
-          "primary_color": {
+          "accent_color": {
             "type": "string",
-            "title": "Primary Color"
+            "title": "Accent Color"
+          },
+          "logo_url_dark": {
+            "type": "string",
+            "title": "Logo Url Dark"
+          },
+          "login_background_url": {
+            "type": "string",
+            "title": "Login Background Url"
+          },
+          "default_theme": {
+            "type": "string",
+            "title": "Default Theme"
+          },
+          "custom_css": {
+            "type": "string",
+            "title": "Custom Css"
           }
         },
         "type": "object",
@@ -2571,7 +2629,11 @@
           "name",
           "logo_url",
           "favicon_url",
-          "primary_color"
+          "accent_color",
+          "logo_url_dark",
+          "login_background_url",
+          "default_theme",
+          "custom_css"
         ],
         "title": "BrandingInfo"
       },
@@ -3663,12 +3725,33 @@
             "type": "string",
             "title": "Remote Entry"
           },
+          "integrity": {
+            "type": "string",
+            "title": "Integrity"
+          },
+          "stylesheet": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PluginStylesheet"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "slots": {
             "items": {
               "type": "string"
             },
             "type": "array",
             "title": "Slots"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/PluginPage"
+            },
+            "type": "array",
+            "title": "Pages"
           },
           "challenge_types": {
             "anyOf": [
@@ -3689,10 +3772,76 @@
         "required": [
           "key",
           "remote_entry",
+          "integrity",
+          "stylesheet",
           "slots",
+          "pages",
           "challenge_types"
         ],
         "title": "PluginManifestEntry"
+      },
+      "PluginPage": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              }
+            ],
+            "title": "Label"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "section": {
+            "type": "string",
+            "title": "Section"
+          }
+        },
+        "type": "object",
+        "required": [
+          "path",
+          "label",
+          "icon",
+          "section"
+        ],
+        "title": "PluginPage"
+      },
+      "PluginStylesheet": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "integrity": {
+            "type": "string",
+            "title": "Integrity"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url",
+          "integrity"
+        ],
+        "title": "PluginStylesheet"
       },
       "PublicAdjustmentDetail": {
         "properties": {
@@ -3817,6 +3966,18 @@
               }
             ],
             "title": "Expires At"
+          },
+          "last_used_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used At"
           },
           "scopes": {
             "items": {

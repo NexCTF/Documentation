@@ -31,7 +31,9 @@ want to fire real requests at it.
 
 ## Authenticating
 
-Two credentials are accepted, and most endpoints take either.
+Two credentials are accepted, and most endpoints take either. A few are public and
+need neither, such as the published pages and public files; the reference pages say
+so on each of them.
 
 === "API token"
 

@@ -8,11 +8,11 @@ Jobs that fire at a chosen date and time, once or on a repeating schedule: open 
 challenge at the start of a round, post a reminder before the freeze, close everything
 when the event ends.
 
-!!! warning "Requires the scheduler worker"
+!!! warning "Requires the worker"
 
-    Jobs are executed by a separate worker process, not by the API. If that container is
-    not running, jobs simply stay pending and nothing fires. See
-    [Deployment](deployment.md).
+    Jobs are executed by the background worker, a separate process from the API inside
+    the `app` container. If it is not running, jobs simply stay pending and nothing
+    fires. See [Deployment](deployment.md#what-runs).
 
 ## The job list
 
@@ -25,7 +25,7 @@ when the event ends.
 | Type | What the job does, see [Job types](#job-types). |
 | Next run | When the job is due, in your local timezone, with the cron expression underneath for repeating jobs. |
 | Status | `scheduled` for a job still waiting, `completed` once a one-shot job has run, `disabled` for a job that is turned off. |
-| Last run | When the job last executed. |
+| Last run | When the job was last due to run. |
 
 ## Creating a job
 
@@ -42,15 +42,20 @@ when the event ends.
 
 A job needs either a date or a cron expression, and can have both.
 
-!!! info "Jobs fire on a one minute tick"
+!!! info "Jobs fire on the second"
 
-    The worker looks for due jobs every 60 seconds, so a job runs at its scheduled time
-    or shortly after, never before. Scheduling something to the second is not useful.
+    Once a minute the worker queues every job due within the next minute, each one
+    held back until its exact time. A job scheduled for `18:00:30` starts at
+    `18:00:30`, never before. The exception is a job created or moved less than a
+    minute before it is due: it waits for the next pass, so it can start up to a minute
+    late.
 
 ## Repeating jobs
 
 A cron expression turns a one-shot job into a repeating one. Standard 5-field syntax is
-accepted, and 6 fields when you need seconds:
+accepted, and 6 fields when you need seconds, with the seconds field first. A job fires
+at most once a minute, so that seconds field must name a single value: `30 0 * * * *`
+is accepted, `*/10 * * * * *` is refused.
 
 | Expression | Fires |
 | --- | --- |
@@ -59,7 +64,7 @@ accepted, and 6 fields when you need seconds:
 | `0 9 * * 1` | Every Monday at 09:00. |
 
 The field previews the next fire times as you type, and refuses to save an expression it
-cannot parse.
+cannot parse or that fires more than once a minute.
 
 !!! info "Which timezone applies"
 
@@ -68,9 +73,9 @@ cannot parse.
     midnight across a daylight-saving shift. Times are always *displayed* in the local
     timezone of whoever is looking at the page.
 
-After each run the job is rescheduled to its next occurrence and stays `scheduled`. A
-repeating job runs until you disable or delete it; if its expression somehow becomes
-unparsable, the job is deactivated instead of firing at the wrong time.
+As soon as a run is queued the job is rescheduled to its next occurrence and stays
+`scheduled`. A repeating job runs until you disable or delete it; if its expression
+somehow becomes unparsable, the job is deactivated instead of firing at the wrong time.
 
 ## Job types
 
@@ -115,9 +120,10 @@ week of nightly dumps on a prefix that never grows. See
 [Backups](deployment.md#backups) for what a dump contains, and what it does not.
 
 !!! warning "Pruning happens after the dump, not before"
-    **Keep Last** counts every backup on the prefix, including ones you took by hand. Set
-    it high enough that a manual backup taken before an upgrade is not swept away by that
-    night's run.
+    **Keep Last** counts scheduled backups and the ones you took by hand alike. Set it
+    high enough that a manual backup taken before an upgrade is not swept away by that
+    night's run. Pre-restore backups are the exception: they are never counted and never
+    pruned.
 
 More job types can be added by a [plugin](../plugins/index.md).
 
@@ -143,3 +149,10 @@ if it failed.
 A failed run is **not** retried. A one-shot job is retired either way, and a repeating
 job moves on to its next occurrence, so check the history after an important job was due.
 Only the last 100 runs of a job are kept.
+
+Two failures are recorded by the platform rather than by the job itself:
+
+| Error | Meaning |
+| --- | --- |
+| `skipped: the previous run is still in progress` | The job came due while its last run had not finished. Scheduled runs of one job never overlap, so this occurrence is dropped. |
+| `lost: the run ended without recording a result` | The run never reported back: the worker was stopped mid-run and the run outlasted its five minute grace period, or the run hit its one hour limit and was stopped. |

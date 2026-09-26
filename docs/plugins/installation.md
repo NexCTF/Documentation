@@ -119,7 +119,7 @@ services:
 
 !!! warning "`SSL_CERT_FILE` applies to the whole container"
 
-    It is not scoped to the install: the application and the scheduler read it too, so a
+    It is not scoped to the install: the application and the worker read it too, so a
     bundle holding only your internal CA breaks their own outbound TLS to the OIDC
     provider, SMTP or external S3. Concatenate your CA with the public roots, or prefer
     `UV_SYSTEM_CERTS`, which affects nothing but uv.
@@ -148,7 +148,7 @@ unchanged plugin list does not need the index again. That volume is what makes
 
 ## Installed plugins
 
-**Admin → Plugins** lists what actually loaded, with the version of each plugin.
+**Admin → Plugins** lists what is installed, with the version and key of each plugin.
 
 ![Plugin list](../assets/images/plugins/plugins.webp)
 
@@ -158,9 +158,17 @@ unchanged plugin list does not need the index again. That volume is what makes
 | Official | Published by the NexCTF organisation. |
 | Active | Loaded successfully and its types are available. |
 | Inactive | Installed but failed to load. |
+| Disabled | Installed but not loaded, because it is listed in [`NEXCTF_DISABLED_PLUGINS`](#disabling-a-plugin). |
 
 A plugin that failed to load shows its error on the card, and the same error is in
-`docker compose logs app` under `plugin.load_failed`.
+`docker compose logs app` under `plugin.load_failed`. A plugin that declares its own
+settings has a **Settings** button leading to its section of the admin settings. A card
+warning that the frontend is not built means the package shipped without its interface
+files: the plugin loads, but the panels and pages it would add to the interface are
+missing. That is a packaging problem to report to the plugin's author.
+
+A plugin that adds pages lists them in the player navigation, or in the admin sidebar,
+like any other entry.
 
 Plugin migrations can be inspected from the container:
 
@@ -179,6 +187,30 @@ $ docker compose up -d --force-recreate app
 
 New migrations are applied on the way up. Take a database backup first when the update
 crosses a major version.
+
+## Disabling a plugin
+
+To switch a plugin off without uninstalling it, for example to rule it out while chasing
+a problem, list its package name in `NEXCTF_DISABLED_PLUGINS`:
+
+```yaml title="compose.yml"
+services:
+  app:
+    environment:
+      NEXCTF_PLUGINS: nexctf-sandbox==0.1.0
+      NEXCTF_DISABLED_PLUGINS: nexctf-sandbox
+```
+
+The package stays installed and its migrations still run, but the application and the
+worker do not load it: its types, endpoints, settings and interface are gone until you
+remove it from the list. It appears in **Admin → Plugins** with the *Disabled* badge.
+
+The list is read when the application starts. Apply a change the same way as a change to
+`NEXCTF_PLUGINS`:
+
+```console
+$ docker compose up -d --force-recreate app
+```
 
 ## Removing
 
