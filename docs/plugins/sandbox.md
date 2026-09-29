@@ -77,11 +77,11 @@ verdict.
 
 | Field | Notes |
 | --- | --- |
-| Checker function | Python 3. Must define `check(answer, team_id)` returning a boolean. Up to 64 KiB. |
+| Checker function | Python 3. Must define `check(answer, team_id, team_fields)` returning a boolean. Up to 64 KiB. |
 | Timeout (s) | Between 1 and 30, `5` by default. |
 
 ```python
-def check(answer: str, team_id: str | None) -> bool:
+def check(answer: str, team_id: str | None, team_fields: dict) -> bool:
     return answer.strip().lower() == "42"
 ```
 
@@ -91,7 +91,7 @@ team, or `None` when they are not in one. Use it for per-team flags:
 ```python
 import hashlib
 
-def check(answer: str, team_id: str | None) -> bool:
+def check(answer: str, team_id: str | None, team_fields: dict) -> bool:
     expected = hashlib.sha256(f"s3cr3t{team_id}".encode()).hexdigest()[:16]
     return answer.strip() == f"NEX{{{expected}}}"
 ```
@@ -101,6 +101,46 @@ answer rather than an error the player sees, and so does a syntax error. A broke
 checker therefore rejects every player silently: submit a known-good answer yourself
 once after writing one. The checker code is admin-only, and never part of what the player-facing
 API returns.
+
+### Team custom fields
+
+`team_fields` holds the submitting team's [custom fields](../documentation/users-teams.md),
+keyed by field name. Private fields are included: the checker is admin code, and a
+per-team seed or secret is what the argument is for.
+
+```python
+import hashlib
+
+def check(answer: str, team_id: str | None, team_fields: dict) -> bool:
+    seed = team_fields.get("seed", "")
+    expected = hashlib.sha256(seed.encode()).hexdigest()[:16]
+    return answer.strip() == f"NEX{{{expected}}}"
+```
+
+| Field type | Value in `team_fields` |
+| --- | --- |
+| Integer | `int` |
+| Boolean | `bool` |
+| Anything else | `str` |
+
+A field the team left empty is missing from the dictionary rather than set to `None`,
+so read it with `.get()`. A value stored before its field changed type, and no longer
+parsing as the new one, is passed as the raw string. A player with no team gets an
+empty dictionary.
+
+A new checker starts from a template that lists the team custom fields defined on the
+instance, with their types, as a comment. Fields added later do not update an existing
+checker.
+
+`team_fields` is optional. A checker declared without it, such as
+`check(answer, team_id)`, keeps working unchanged: the argument is only passed to a
+function that can take it.
+
+!!! warning "Teams can edit their own fields"
+
+    With [**Allow Team Customization**](../documentation/customization.md#what-players-can-change-for-themselves)
+    on, team members can change their team's custom fields, and with them what the
+    checker sees. Before deriving a flag from a field, make sure the team cannot edit it.
 
 ## Code runner
 
