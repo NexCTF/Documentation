@@ -11,7 +11,7 @@ list you put in the `NEXCTF_PLUGINS` environment variable.
 services:
   app:
     environment:
-      NEXCTF_PLUGINS: nexctf-sandbox==0.1.0
+      NEXCTF_PLUGINS: nexctf-sandbox==1.0.0
 ```
 
 ```console
@@ -37,8 +37,8 @@ The variable holds a comma-separated list, and each entry is anything uv can ins
 | Entry | Installs |
 | --- | --- |
 | `nexctf-sandbox` | Latest version from the package index. |
-| `nexctf-sandbox==0.1.0` | An exact version. |
-| `git+https://github.com/NexCTF/Sandbox@v0.1.0` | A git tag, branch or commit. |
+| `nexctf-sandbox==1.0.0` | An exact version. |
+| `git+https://github.com/NexCTF/nexctf-sandbox@v1.0.0` | A git tag, branch or commit. |
 | `/plugins/my-plugin` | A directory you mounted into the container. |
 
 The comma is the only separator, so an entry can contain neither a comma nor a space:
@@ -80,7 +80,7 @@ credential variables refer to:
 services:
   app:
     environment:
-      NEXCTF_PLUGINS: nexctf-sandbox==0.1.0
+      NEXCTF_PLUGINS: nexctf-sandbox==1.0.0
       UV_INDEX: internal=https://packages.example.org/simple
       UV_INDEX_INTERNAL_USERNAME: ${INDEX_USER}
       UV_INDEX_INTERNAL_PASSWORD: ${INDEX_TOKEN}
@@ -197,7 +197,7 @@ a problem, list its package name in `NEXCTF_DISABLED_PLUGINS`:
 services:
   app:
     environment:
-      NEXCTF_PLUGINS: nexctf-sandbox==0.1.0
+      NEXCTF_PLUGINS: nexctf-sandbox==1.0.0
       NEXCTF_DISABLED_PLUGINS: nexctf-sandbox
 ```
 

@@ -4,7 +4,7 @@ icon: lucide/box
 
 # Sandbox
 
-[`nexctf-sandbox`](https://github.com/NexCTF/Sandbox) adds two solution types that run
+[`nexctf-sandbox`](https://github.com/NexCTF/nexctf-sandbox) adds two solution types that run
 code in a throwaway [microVM](https://github.com/microsandbox/microsandbox): one where
 **you** write the code that grades the answer, one where the **player** writes the code
 being graded.
@@ -23,10 +23,13 @@ The sandbox boots a real virtual machine per submission, which the host has to a
 
 | Requirement | Why |
 | --- | --- |
+| NexCTF 0.12 | Each plugin release supports one NexCTF minor version, see [Compatibility](#compatibility). |
 | `/dev/kvm`, readable and writable by the container | Hardware virtualization. Without it no sandbox boots: `Script checker` then marks every answer wrong, and `Code runner` answers the player with a server error. |
-| `NET_ADMIN` capability | Lets the sandbox install the firewall rules that enforce [Network access](#network-access). Without it the sandbox refuses to boot for every value but `all`. |
 | Memory headroom | A microVM takes 320 MiB and up to eight run at once per API worker, so 2.5 GB per worker at full load. |
-| Free disk for the guest image | The `python:3.12-slim` image is pulled on the first submission and cached inside the container. |
+| Free disk for the guest image | The `python:3.14-slim` image is pulled on the first submission and cached inside the container. |
+
+Nothing else: no added capability and no root. [Network access](#network-access) is
+enforced by microsandbox's own network stack, not by firewall rules on the host.
 
 ## Installing
 
@@ -44,11 +47,9 @@ Use that number, which differs from host to host:
 services:
   app:
     environment:
-      NEXCTF_PLUGINS: nexctf-sandbox==0.1.0
+      NEXCTF_PLUGINS: nexctf-sandbox==1.0.0
     devices:
       - /dev/kvm
-    cap_add:
-      - NET_ADMIN
     group_add:
       - "994"
 ```
@@ -57,18 +58,31 @@ services:
 $ docker compose up -d --force-recreate app
 ```
 
-Then check both the device and the capability are there from inside the container:
+Then check the device is usable from inside the container:
 
 ```console
 $ docker compose exec app test -r /dev/kvm -a -w /dev/kvm && echo ok
-$ docker compose exec app python3 -c "print(bool(int(open('/proc/self/status').read().split('CapEff:')[1].split()[0], 16) >> 12 & 1))"
-True
+ok
 ```
 
-The second command is the plugin's own check, run by hand. `False` means the sandbox
-cannot filter the guest network: see [Without `NET_ADMIN`](#without-net_admin).
-
 See [Installing plugins](installation.md) for private indexes, custom CAs and removal.
+
+### Compatibility
+
+| `nexctf-sandbox` | NexCTF |
+| --- | --- |
+| 1.0.x | 0.12.x |
+
+The plugin declares the NexCTF versions it supports, so it will not install against
+another one: upgrade NexCTF and the plugin together, in the same container recreation.
+
+!!! info "Coming from 0.1"
+
+    The `NET_ADMIN` capability is no longer used: drop `cap_add` from the service. The
+    default **Base image** moved from `python:3.12-slim` to `python:3.14-slim`, which
+    checkers and player code run under unless the setting was changed. A checker
+    importing a module Python 3.13 removed, such as `cgi` or `telnetlib`, needs updating,
+    or set **Base image** back to `python:3.12-slim`.
 
 ## Script checker
 
@@ -174,7 +188,7 @@ timeout.
 
 | Setting | Default | Notes |
 | --- | --- | --- |
-| Base image | `python:3.12-slim` | OCI image every microVM boots from. It must provide `python3` on `PATH`. |
+| Base image | `python:3.14-slim` | OCI image every microVM boots from. It must provide `python3` on `PATH`. |
 | vCPUs | `1` | Virtual CPUs given to each microVM. |
 | Memory (MiB) | `256` | Guest RAM. The root disk is added on top, so a default machine costs the host 320 MiB. |
 | Root disk (MiB) | `64` | tmpfs, so guest writes are RAM-backed and cost no host disk. Discarded with the machine. |
@@ -206,35 +220,6 @@ host's network is where Redis and the Postgres holding your flags sit.
     Nothing is filtered under `all`. Code a player submits can reach Redis, the database
     holding your flags, and anything else routable from the container. Use it only on an
     instance that has nothing worth reaching next to it.
-
-### Without `NET_ADMIN`
-
-Egress filtering is done by firewall rules the sandbox programs itself. On a host that
-does not let it, microsandbox reports the policy as applied and leaves the guest
-unfiltered. Rather than trust that, the plugin checks for the capability before every
-boot:
-
-| Setting | On a host without `NET_ADMIN` |
-| --- | --- |
-| `disabled`, `internet` | Refused. No microVM is booted. |
-| `all` | Boots normally, having asked for no filtering in the first place. |
-
-A refusal does not reach the player as one, so it reads as a broken challenge rather
-than a misconfigured host:
-
-- `Script checker` marks the answer **wrong**, and logs `script.checker failed`.
-- `Code runner` answers the player with a **server error**.
-
-The plugin says so at startup instead, once per worker. Check for it after deploying,
-and again after any change to the container's capabilities:
-
-```console
-$ docker compose logs app | grep sandbox.network
-sandbox.network host has no CAP_NET_ADMIN: microVM egress cannot be filtered, so ... only 'all' will boot
-```
-
-The capability is re-read on every boot, not cached, so a container that gains or loses
-it is honoured from the next submission on.
 
 ## Limits
 
