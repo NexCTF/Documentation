@@ -1,20 +1,23 @@
-name: Screenshots
+name: NexCTF release
+# Started by NexCTF when it publishes a release (or by hand): refreshes the API
+# reference and the screenshots from that version, and opens a pull request.
 on:
   workflow_dispatch:
     inputs:
-      ref:
-        description: NexCTF tag or branch to capture
+      version:
+        description: NexCTF release tag, e.g. v0.12.3
         required: true
-        default: main
       plugins:
-        description: Plugins to install first (NEXCTF_PLUGINS), for the plugin list
+        description: Plugins installed for the screenshots (NEXCTF_PLUGINS)
         required: false
-        default: ""
+        default: nexctf-sandbox==1.0.0
 permissions:
   contents: write
   pull-requests: write
+concurrency:
+  group: nexctf-release-${{ inputs.version }}
 jobs:
-  capture:
+  update:
     runs-on: ubuntu-latest
     # Credentials match NexCTF's .env.dev, which its backend reads through the Taskfile.
     services:
@@ -49,7 +52,7 @@ jobs:
         ports:
           - 9000:9000
       mail:
-        image: axllent/mailpit:v1.31.4@sha256:b68349e3a014b90c5610bfb26b2ae36f3892d7b8cf25ee140c6c71c98d2fcf48
+        image: axllent/mailpit:v1.31.6@sha256:23fe39e81bde596a918000b3135c0f85dc8bb4c9ea6be274b051143f3e300387
         env:
           MP_SMTP_AUTH_ACCEPT_ANY: "1"
           MP_SMTP_AUTH_ALLOW_INSECURE: "1"
@@ -57,7 +60,7 @@ jobs:
           - 1025:1025
           - 8025:8025
     env:
-      NEXCTF_REF: ${{ inputs.ref }}
+      VERSION: ${{ inputs.version }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -66,7 +69,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           repository: NexCTF/NexCTF
-          ref: ${{ inputs.ref }}
+          ref: ${{ inputs.version }}
           path: nexctf
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
@@ -79,29 +82,56 @@ jobs:
         working-directory: nexctf/frontend
       - run: bunx playwright install --with-deps chromium
         working-directory: nexctf/frontend
+
+      # Before the screenshots, whose plugins would otherwise be installed in the backend.
+      - name: Update the API reference
+        working-directory: nexctf
+        run: |
+          WEB_CONCURRENCY=1 setsid task dev:backend > "$RUNNER_TEMP/backend.log" 2>&1 &
+          backend=$!
+          if ! timeout 180 bash -c 'until curl -sf localhost:8000/api/v1/info > /dev/null; do sleep 2; done'; then
+            cat "$RUNNER_TEMP/backend.log"
+            exit 1
+          fi
+          ../scripts/update-openapi.sh http://localhost:8000 "$VERSION"
+          # The screenshots start their own backend on the same port.
+          kill -- "-$backend"
+          timeout 30 bash -c 'while curl -sf localhost:8000/api/v1/info > /dev/null; do sleep 1; done'
+
       # What `task dev:screenshots` does locally; the services start empty, so only the database is missing.
       - run: docker exec ${{ job.services.db.id }} psql -U postgres -c "CREATE DATABASE nexctf_screenshots"
       # Playwright starts the backend (migrations + dev fixtures), the worker and the frontend.
-      - run: bunx playwright test -c playwright.screenshots.config.ts docs/
+      - name: Capture the screenshots
         working-directory: nexctf/frontend
+        run: bunx playwright test -c playwright.screenshots.config.ts --project docs
         env:
           NEXCTF_PLUGINS: ${{ inputs.plugins }}
           SCREENSHOTS_DOCS_DIR: ${{ runner.temp }}/docshots
       - run: scripts/update-screenshots.sh "$RUNNER_TEMP/docshots"
+
       - name: Open a pull request
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if git diff --quiet -- docs/assets/images; then
-            echo "screenshots unchanged"
+          if git diff --quiet -- docs/api docs/assets/images; then
+            echo "nothing changed for NexCTF $VERSION"
             exit 0
           fi
-          branch="screenshots/${NEXCTF_REF//\//-}-${GITHUB_RUN_ID}"
+          release="NexCTF ${VERSION#v}"
+          branch="nexctf/$VERSION"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$branch"
-          git add docs/assets/images
-          git commit -m "Update screenshots for NexCTF $NEXCTF_REF"
-          git push origin "$branch"
-          gh pr create --title "Update screenshots for NexCTF $NEXCTF_REF" \
-            --body "Captured from NexCTF \`$NEXCTF_REF\` by the Screenshots workflow."
+          git add docs/api docs/assets/images
+          # Images must go through LFS: a raw binary in history cannot be taken back.
+          for image in $(git diff --cached --name-only -- docs/assets/images); do
+            git cat-file -p ":$image" | head -c 40 | grep -q "^version https://git-lfs" \
+              || { echo "$image is not stored in LFS"; exit 1; }
+          done
+          git commit -m "$release"
+          # A re-run replaces the branch and keeps its pull request.
+          git push --force origin "$branch"
+          if [ -z "$(gh pr list --head "$branch" --json number --jq '.[]')" ]; then
+            gh pr create --title "$release" \
+              --body "API reference and screenshots regenerated from NexCTF \`$VERSION\` by the NexCTF release workflow."
+          fi
