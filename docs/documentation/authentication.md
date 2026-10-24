@@ -49,6 +49,14 @@ IP address**.
 Login is only gated on verification while email is enabled. Otherwise an unverified
 account could never be unlocked, so the check is skipped rather than locking people out.
 
+!!! warning "Changing a user's email address unverifies it"
+    Players cannot change their own address; an admin can, from
+    **Admin → Users → *user***. The new address starts unverified, and nothing is sent to
+    it. While email is enabled, the player's next login is refused until they ask for a
+    new link from the screen that refusal shows, and use it. There is no way for an admin
+    to mark an address verified by hand, so tell the player before you change it. An
+    address changed while email is off is not checked until email is turned on.
+
 ### Password reset
 
 *Forgot password* mails a single-use link valid for **1 hour**. The link is consumed the

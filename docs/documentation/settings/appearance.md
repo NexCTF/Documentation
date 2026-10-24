@@ -20,7 +20,8 @@ The settings live under **Admin → Settings → Appearance**.
 | Default theme | Choice | `system` |
 | Custom CSS | Text | Empty |
 
-**Save** applies the whole category at once, and a dot on the tab marks unsaved changes.
+**Save** sends every changed setting at once, from every tab, and a dot on a tab marks
+the ones with unsaved changes.
 Everything but **Default theme** repaints open pages immediately over the public event
 stream; a page that missed the push picks the change up within 60 seconds. The
 [Admin API](../../api/admin.md) reads and writes the same values under
