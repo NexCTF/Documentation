@@ -69,7 +69,7 @@
           "Backup"
         ],
         "summary": "Delete Backup",
-        "description": "Delete a dump from S3.\n\n**Required token scope:** `write:admin.backup`",
+        "description": "Delete a dump from S3.\n\n**Required token scope:** `write:admin.backup`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check.",
         "operationId": "delete_backup_api_v1_admin_backup_delete",
         "security": [
           {
@@ -116,13 +116,13 @@
       }
     },
     "/api/v1/admin/backup/download": {
-      "get": {
+      "post": {
         "tags": [
           "Backup"
         ],
-        "summary": "Download Backup",
-        "description": "Stream a dump through the authenticated API.\n\n**Required token scope:** `read:admin.backup`",
-        "operationId": "download_backup_api_v1_admin_backup_download_get",
+        "summary": "Issue Download Ticket",
+        "description": "Issue a one-time, short-lived ticket to download a dump.\n\n**Required token scope:** `write:admin.backup`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check.",
+        "operationId": "issue_download_ticket_api_v1_admin_backup_download_post",
         "security": [
           {
             "HTTPBearer": []
@@ -139,6 +139,56 @@
             "schema": {
               "type": "string",
               "title": "Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AdminBackupDownloadTicket_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "write:admin.backup"
+      },
+      "get": {
+        "tags": [
+          "Backup"
+        ],
+        "summary": "Download Backup",
+        "description": "Stream the dump a download ticket was issued for.\n\n**Required token scope:** `read:admin.backup`",
+        "operationId": "download_backup_api_v1_admin_backup_download_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "ticket",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticket"
             }
           }
         ],
@@ -171,7 +221,7 @@
           "Backup"
         ],
         "summary": "Restore Backup",
-        "description": "Stop the app, restore the dump, migrate and start again, in the background.\n\nOnly the bundled image can orchestrate this; elsewhere the operator runs\n``manager restore <key>`` with the app stopped.\n\n**Required token scope:** `write:admin.backup`",
+        "description": "Stop the app, restore the dump, migrate and start again, in the background.\n\nOnly the bundled image can orchestrate this; elsewhere the operator runs\n``manager restore <key>`` with the app stopped.\n\n**Required token scope:** `write:admin.backup`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check.",
         "operationId": "restore_backup_api_v1_admin_backup_restore_post",
         "security": [
           {
@@ -1393,6 +1443,7 @@
           "Config"
         ],
         "summary": "Bulk Update Config",
+        "description": "Save config; from a browser, auth-related keys need a fresh session.\n\n**Required token scope:** `write:admin.config`",
         "operationId": "bulk_update_config_api_v1_admin_config_put",
         "requestBody": {
           "content": {
@@ -1434,8 +1485,7 @@
             "APIKeyCookie_NexCTF": []
           }
         ],
-        "x-token-scope": "write:admin.config",
-        "description": "**Required token scope:** `write:admin.config`"
+        "x-token-scope": "write:admin.config"
       }
     },
     "/api/v1/admin/custom-field": {
@@ -1844,280 +1894,6 @@
         ],
         "summary": "Delete Custom Field",
         "operationId": "delete_custom_field_api_v1_admin_custom_field__uuid__delete",
-        "security": [
-          {
-            "HTTPBearer": []
-          },
-          {
-            "APIKeyCookie_NexCTF": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "uuid",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_NoneType_"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "x-token-scope": "write:admin.user",
-        "description": "**Required token scope:** `write:admin.user`"
-      }
-    },
-    "/api/v1/admin/custom-field-value": {
-      "get": {
-        "tags": [
-          "Custom Field"
-        ],
-        "summary": "Get Custom Field Values",
-        "operationId": "get_custom_field_values_api_v1_admin_custom_field_value_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          },
-          {
-            "APIKeyCookie_NexCTF": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "pagination_type",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/PaginationType",
-              "description": "Pagination strategy",
-              "default": "offset"
-            },
-            "description": "Pagination strategy"
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "description": "Page number (1-indexed, offset only)",
-              "default": 1,
-              "title": "Page"
-            },
-            "description": "Page number (1-indexed, offset only)"
-          },
-          {
-            "name": "cursor",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Cursor token from a previous response (cursor only)",
-              "title": "Cursor"
-            },
-            "description": "Cursor token from a previous response (cursor only)"
-          },
-          {
-            "name": "items_per_page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 100,
-              "minimum": 1,
-              "description": "Number of items per page (max 100)",
-              "default": 20,
-              "title": "Items Per Page"
-            },
-            "description": "Number of items per page (max 100)"
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Search query string",
-              "title": "Search"
-            },
-            "description": "Search query string"
-          },
-          {
-            "name": "search_column",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Restrict search to a single column",
-              "enum": [
-                "id"
-              ],
-              "title": "Search Column"
-            },
-            "description": "Restrict search to a single column"
-          },
-          {
-            "name": "definition_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Definition Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/CursorPaginatedResponse_AdminCustomFieldValueRead_"
-                    },
-                    {
-                      "$ref": "#/components/schemas/OffsetPaginatedResponse_AdminCustomFieldValueRead_"
-                    }
-                  ],
-                  "discriminator": {
-                    "propertyName": "pagination_type",
-                    "mapping": {
-                      "cursor": "#/components/schemas/CursorPaginatedResponse_AdminCustomFieldValueRead_",
-                      "offset": "#/components/schemas/OffsetPaginatedResponse_AdminCustomFieldValueRead_"
-                    }
-                  },
-                  "title": "Response Get Custom Field Values Api V1 Admin Custom Field Value Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "x-token-scope": "read:admin.user",
-        "description": "**Required token scope:** `read:admin.user`"
-      },
-      "post": {
-        "tags": [
-          "Custom Field"
-        ],
-        "summary": "Set Custom Field Value",
-        "operationId": "set_custom_field_value_api_v1_admin_custom_field_value_post",
-        "security": [
-          {
-            "HTTPBearer": []
-          },
-          {
-            "APIKeyCookie_NexCTF": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AdminCustomFieldValueCreate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_AdminCustomFieldValueRead_"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "x-token-scope": "write:admin.user",
-        "description": "**Required token scope:** `write:admin.user`"
-      }
-    },
-    "/api/v1/admin/custom-field-value/{uuid}": {
-      "delete": {
-        "tags": [
-          "Custom Field"
-        ],
-        "summary": "Delete Custom Field Value",
-        "operationId": "delete_custom_field_value_api_v1_admin_custom_field_value__uuid__delete",
         "security": [
           {
             "HTTPBearer": []
@@ -4265,6 +4041,7 @@
           "Notification"
         ],
         "summary": "Create Notification",
+        "description": "Create a notification, announced to players once it is committed.\n\n**Required token scope:** `write:admin.notification`",
         "operationId": "create_notification_api_v1_admin_notification_post",
         "security": [
           {
@@ -4306,8 +4083,7 @@
             }
           }
         },
-        "x-token-scope": "write:admin.notification",
-        "description": "**Required token scope:** `write:admin.notification`"
+        "x-token-scope": "write:admin.notification"
       }
     },
     "/api/v1/admin/notification/{uuid}": {
@@ -4735,7 +4511,7 @@
           }
         },
         "x-token-scope": "write:admin.config",
-        "description": "**Required token scope:** `write:admin.config`"
+        "description": "**Required token scope:** `write:admin.config`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check."
       }
     },
     "/api/v1/admin/oauth-client/{uuid}": {
@@ -4849,7 +4625,7 @@
           }
         },
         "x-token-scope": "write:admin.config",
-        "description": "**Required token scope:** `write:admin.config`"
+        "description": "**Required token scope:** `write:admin.config`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check."
       },
       "delete": {
         "tags": [
@@ -4900,7 +4676,7 @@
           }
         },
         "x-token-scope": "write:admin.config",
-        "description": "**Required token scope:** `write:admin.config`"
+        "description": "**Required token scope:** `write:admin.config`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check."
       }
     },
     "/api/v1/admin/oauth-provider": {
@@ -5164,7 +4940,7 @@
           }
         },
         "x-token-scope": "write:admin.config",
-        "description": "**Required token scope:** `write:admin.config`"
+        "description": "**Required token scope:** `write:admin.config`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check."
       }
     },
     "/api/v1/admin/oauth-provider/{uuid}": {
@@ -5278,7 +5054,7 @@
           }
         },
         "x-token-scope": "write:admin.config",
-        "description": "**Required token scope:** `write:admin.config`"
+        "description": "**Required token scope:** `write:admin.config`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check."
       },
       "delete": {
         "tags": [
@@ -5329,7 +5105,7 @@
           }
         },
         "x-token-scope": "write:admin.config",
-        "description": "**Required token scope:** `write:admin.config`"
+        "description": "**Required token scope:** `write:admin.config`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check."
       }
     },
     "/api/v1/admin/plugins": {
@@ -6383,6 +6159,7 @@
           "Scheduler"
         ],
         "summary": "Run Job",
+        "description": "Queue a run of the job now, leaving its schedule as is.\n\n**Required token scope:** `write:admin.config`",
         "operationId": "run_job_api_v1_admin_scheduler_jobs__uuid__run_post",
         "security": [
           {
@@ -6426,8 +6203,7 @@
             }
           }
         },
-        "x-token-scope": "write:admin.config",
-        "description": "**Required token scope:** `write:admin.config`"
+        "x-token-scope": "write:admin.config"
       }
     },
     "/api/v1/admin/scheduler/jobs/{uuid}/tasks": {
@@ -7269,6 +7045,323 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Response_AdminFailedLoginOverviewRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:admin.user"
+      }
+    },
+    "/api/v1/admin/session/clients": {
+      "get": {
+        "tags": [
+          "Session"
+        ],
+        "summary": "Get Clients",
+        "description": "Each account and user-agent pair seen over *window*, filterable by kind.\n\n**Required token scope:** `read:admin.user`",
+        "operationId": "get_clients_api_v1_admin_session_clients_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "window",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SessionWindow",
+              "default": "day"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClientCategory"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "pagination_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/PaginationType",
+              "description": "Pagination strategy",
+              "default": "offset"
+            },
+            "description": "Pagination strategy"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Page number (1-indexed, offset only)",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "Page number (1-indexed, offset only)"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Cursor token from a previous response (cursor only)",
+              "title": "Cursor"
+            },
+            "description": "Cursor token from a previous response (cursor only)"
+          },
+          {
+            "name": "items_per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Number of items per page (max 100)",
+              "default": 20,
+              "title": "Items Per Page"
+            },
+            "description": "Number of items per page (max 100)"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Search query string",
+              "title": "Search"
+            },
+            "description": "Search query string"
+          },
+          {
+            "name": "search_column",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Restrict search to a single column",
+              "enum": [
+                "id",
+                "user_agent",
+                "user__username",
+                "team__name"
+              ],
+              "title": "Search Column"
+            },
+            "description": "Restrict search to a single column"
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source"
+            }
+          },
+          {
+            "name": "team__name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Team  Name"
+            }
+          },
+          {
+            "name": "order_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Field to order by. Valid values: ['created_at', 'first_seen_at', 'last_seen_at', 'source', 'team__name', 'user__username', 'user_agent']",
+              "enum": [
+                "created_at",
+                "first_seen_at",
+                "last_seen_at",
+                "source",
+                "team__name",
+                "user__username",
+                "user_agent"
+              ],
+              "title": "Order By"
+            },
+            "description": "Field to order by. Valid values: ['created_at', 'first_seen_at', 'last_seen_at', 'source', 'team__name', 'user__username', 'user_agent']"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string",
+              "description": "Sort direction",
+              "default": "desc",
+              "title": "Order"
+            },
+            "description": "Sort direction"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/CursorPaginatedResponse_AdminClientSightingRead_"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OffsetPaginatedResponse_AdminClientSightingRead_"
+                    }
+                  ],
+                  "discriminator": {
+                    "propertyName": "pagination_type",
+                    "mapping": {
+                      "cursor": "#/components/schemas/CursorPaginatedResponse_AdminClientSightingRead_",
+                      "offset": "#/components/schemas/OffsetPaginatedResponse_AdminClientSightingRead_"
+                    }
+                  },
+                  "title": "Response Get Clients Api V1 Admin Session Clients Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:admin.user"
+      }
+    },
+    "/api/v1/admin/session/clients/summary": {
+      "get": {
+        "tags": [
+          "Session"
+        ],
+        "summary": "Get Clients Summary",
+        "description": "How many clients and accounts were seen over *window*, per kind.\n\n**Required token scope:** `read:admin.user`",
+        "operationId": "get_clients_summary_api_v1_admin_session_clients_summary_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "window",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SessionWindow",
+              "default": "day"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AdminClientSummaryRead_"
                 }
               }
             }
@@ -9227,7 +9320,7 @@
           "Team"
         ],
         "summary": "Get Team Score Detail",
-        "description": "Score breakdown ignoring ``ctf.freeze_time`` — admins see live numbers.\n\n**Required token scope:** `read:admin.team`",
+        "description": "Score breakdown ignoring ``ctf.freeze_time``: admins see live numbers.\n\n**Required token scope:** `read:admin.team`",
         "operationId": "get_team_score_detail_api_v1_admin_team__uuid__score_get",
         "security": [
           {
@@ -9410,7 +9503,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdminTeamUpdate"
+                "$ref": "#/components/schemas/AdminTeamUpdateRequest"
               }
             }
           }
@@ -9752,7 +9845,7 @@
           "User"
         ],
         "summary": "Create User",
-        "description": "Create a user directly, bypassing registration gating and email verification.\n\n**Required token scope:** `write:admin.user`",
+        "description": "Create a user directly, bypassing registration gating and email verification.\n\nCreating an admin needs a recently signed-in browser session.\n\n**Required token scope:** `write:admin.user`",
         "operationId": "create_user_api_v1_admin_user_post",
         "security": [
           {
@@ -9854,6 +9947,7 @@
           "User"
         ],
         "summary": "Update User",
+        "description": "Update a user; granting admin signs them out everywhere.\n\nGranting admin or changing an email needs a fresh session; demoting or\ndeactivating an admin needs one unless called with an API token.\n\n**Required token scope:** `write:admin.user`",
         "operationId": "update_user_api_v1_admin_user__uuid__put",
         "security": [
           {
@@ -9880,7 +9974,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdminUserUpdate"
+                "$ref": "#/components/schemas/AdminUserUpdateRequest"
               }
             }
           }
@@ -9891,7 +9985,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response_PublicUserRead_"
+                  "$ref": "#/components/schemas/Response_AdminUserUpdateRead_"
                 }
               }
             }
@@ -9907,8 +10001,7 @@
             }
           }
         },
-        "x-token-scope": "write:admin.user",
-        "description": "**Required token scope:** `write:admin.user`"
+        "x-token-scope": "write:admin.user"
       },
       "delete": {
         "tags": [
@@ -9959,7 +10052,7 @@
           }
         },
         "x-token-scope": "write:admin.user",
-        "description": "**Required token scope:** `write:admin.user`"
+        "description": "**Required token scope:** `write:admin.user`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check."
       }
     },
     "/api/v1/admin/user/{uuid}/sessions": {
@@ -9997,6 +10090,59 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Response_list_UserSessionRead__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:admin.user"
+      }
+    },
+    "/api/v1/admin/user/{uuid}/clients": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get User Clients",
+        "description": "Every user-agent a user was seen with, most recently active first.\n\n**Required token scope:** `read:admin.user`",
+        "operationId": "get_user_clients_api_v1_admin_user__uuid__clients_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_list_AdminUserClientRead__"
                 }
               }
             }
@@ -10341,7 +10487,7 @@
           "User"
         ],
         "summary": "Admin Reset Totp",
-        "description": "Clear TOTP for a user (admin action, no OTP code required).\n\n**Required token scope:** `write:admin.user`",
+        "description": "Clear TOTP for a user (admin action, no OTP code required).\n\n**API tokens:** not accepted, this endpoint needs a browser session.\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`.",
         "operationId": "admin_reset_totp_api_v1_admin_user__uuid__totp_reset_post",
         "security": [
           {
@@ -10377,8 +10523,7 @@
               }
             }
           }
-        },
-        "x-token-scope": "write:admin.user"
+        }
       }
     },
     "/api/v1/admin/user/{uuid}/password-reset-token": {
@@ -10387,7 +10532,7 @@
           "User"
         ],
         "summary": "Admin Create Password Reset Token",
-        "description": "Generate a single-use password reset token for a user (valid 1 hour).\n\n**Required token scope:** `write:admin.user`",
+        "description": "Generate a single-use password reset token for a user (valid 1 hour).\n\n**API tokens:** not accepted, this endpoint needs a browser session.\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`.",
         "operationId": "admin_create_password_reset_token_api_v1_admin_user__uuid__password_reset_token_post",
         "security": [
           {
@@ -10430,8 +10575,7 @@
               }
             }
           }
-        },
-        "x-token-scope": "write:admin.user"
+        }
       }
     }
   },
@@ -10523,6 +10667,19 @@
           "opened_here"
         ],
         "title": "AdminAddressAccountRead"
+      },
+      "AdminBackupDownloadTicket": {
+        "properties": {
+          "ticket": {
+            "type": "string",
+            "title": "Ticket"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ticket"
+        ],
+        "title": "AdminBackupDownloadTicket"
       },
       "AdminBackupList": {
         "properties": {
@@ -10855,6 +11012,126 @@
         ],
         "title": "AdminChallengeTypeInfo"
       },
+      "AdminClientSightingRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "user_agent": {
+            "type": "string",
+            "title": "User Agent"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ClientCategory"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ClientSource"
+          },
+          "token_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Name"
+          },
+          "first_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "First Seen At"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen At"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "team_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team Id"
+          },
+          "team_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_agent",
+          "category",
+          "source",
+          "token_name",
+          "first_seen_at",
+          "last_seen_at",
+          "user_id",
+          "username",
+          "team_id",
+          "team_name"
+        ],
+        "title": "AdminClientSightingRead"
+      },
+      "AdminClientSummaryRead": {
+        "properties": {
+          "client_count": {
+            "type": "integer",
+            "title": "Client Count"
+          },
+          "account_count": {
+            "type": "integer",
+            "title": "Account Count"
+          },
+          "ai_account_count": {
+            "type": "integer",
+            "title": "Ai Account Count"
+          },
+          "automation_account_count": {
+            "type": "integer",
+            "title": "Automation Account Count"
+          },
+          "token_account_count": {
+            "type": "integer",
+            "title": "Token Account Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "client_count",
+          "account_count",
+          "ai_account_count",
+          "automation_account_count",
+          "token_account_count"
+        ],
+        "title": "AdminClientSummaryRead"
+      },
       "AdminConfigBulkUpdate": {
         "properties": {
           "items": {
@@ -10917,6 +11194,34 @@
             "type": "array",
             "title": "Choices"
           },
+          "min": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
           "category": {
             "type": "string",
             "title": "Category"
@@ -10954,6 +11259,8 @@
           "label",
           "description",
           "choices",
+          "min",
+          "max",
           "category",
           "category_label",
           "category_icon",
@@ -11149,55 +11456,6 @@
           "id"
         ],
         "title": "AdminCustomFieldUpdate"
-      },
-      "AdminCustomFieldValueCreate": {
-        "properties": {
-          "definition_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Definition Id"
-          },
-          "user_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "User Id"
-          },
-          "team_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Team Id"
-          },
-          "value": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Value"
-          }
-        },
-        "type": "object",
-        "required": [
-          "definition_id"
-        ],
-        "title": "AdminCustomFieldValueCreate"
       },
       "AdminCustomFieldValueRead": {
         "properties": {
@@ -13515,16 +13773,16 @@
             ],
             "title": "Completed At"
           },
-          "error": {
+          "queue_job_id": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "integer"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Error"
+            "title": "Queue Job Id"
           },
           "created_at": {
             "type": "string",
@@ -13539,7 +13797,7 @@
           "status",
           "started_at",
           "completed_at",
-          "error",
+          "queue_job_id",
           "created_at"
         ],
         "title": "AdminSchedulerTaskRead"
@@ -14163,6 +14421,11 @@
             "type": "array",
             "title": "Questions",
             "default": []
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
           }
         },
         "type": "object",
@@ -14183,6 +14446,8 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
             "title": "Name"
           },
           "country": {
@@ -14474,7 +14739,7 @@
         ],
         "title": "AdminTeamRead"
       },
-      "AdminTeamUpdate": {
+      "AdminTeamUpdateRequest": {
         "properties": {
           "id": {
             "type": "string",
@@ -14484,7 +14749,9 @@
           "name": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 64,
+                "minLength": 1
               },
               {
                 "type": "null"
@@ -14530,22 +14797,101 @@
               }
             ],
             "title": "Links"
+          },
+          "custom_fields": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "propertyNames": {
+                  "format": "uuid"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Fields"
           }
         },
         "type": "object",
         "required": [
           "id"
         ],
-        "title": "AdminTeamUpdate"
+        "title": "AdminTeamUpdateRequest"
+      },
+      "AdminUserClientRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "user_agent": {
+            "type": "string",
+            "title": "User Agent"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ClientCategory"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ClientSource"
+          },
+          "token_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Name"
+          },
+          "first_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "First Seen At"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_agent",
+          "category",
+          "source",
+          "token_name",
+          "first_seen_at",
+          "last_seen_at"
+        ],
+        "title": "AdminUserClientRead"
       },
       "AdminUserCreate": {
         "properties": {
           "username": {
             "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
             "title": "Username"
           },
           "password": {
             "type": "string",
+            "maxLength": 256,
+            "minLength": 8,
             "title": "Password"
           },
           "email": {
@@ -14749,7 +15095,99 @@
         ],
         "title": "AdminUserIpRead"
       },
-      "AdminUserUpdate": {
+      "AdminUserUpdateRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "email_verified": {
+            "type": "boolean",
+            "title": "Email Verified",
+            "default": false
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "team_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team Id"
+          },
+          "team_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team Name"
+          },
+          "totp_enabled": {
+            "type": "boolean",
+            "title": "Totp Enabled",
+            "default": false
+          },
+          "has_password": {
+            "type": "boolean",
+            "title": "Has Password",
+            "default": false
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "type": "array",
+            "title": "Links",
+            "default": []
+          },
+          "sessions_revoked": {
+            "type": "boolean",
+            "title": "Sessions Revoked",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "username",
+          "email",
+          "role",
+          "is_active"
+        ],
+        "title": "AdminUserUpdateRead"
+      },
+      "AdminUserUpdateRequest": {
         "properties": {
           "id": {
             "type": "string",
@@ -14759,7 +15197,9 @@
           "username": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 32,
+                "minLength": 1
               },
               {
                 "type": "null"
@@ -14825,13 +15265,37 @@
               }
             ],
             "title": "Links"
+          },
+          "custom_fields": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "propertyNames": {
+                  "format": "uuid"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Fields"
           }
         },
         "type": "object",
         "required": [
           "id"
         ],
-        "title": "AdminUserUpdate"
+        "title": "AdminUserUpdateRequest"
       },
       "BackupSource": {
         "type": "string",
@@ -15041,6 +15505,25 @@
         ],
         "title": "ChallengeStats"
       },
+      "ClientCategory": {
+        "type": "string",
+        "enum": [
+          "ai",
+          "automation",
+          "browser"
+        ],
+        "title": "ClientCategory",
+        "description": "What kind of client a user-agent belongs to."
+      },
+      "ClientSource": {
+        "type": "string",
+        "enum": [
+          "cookie",
+          "token"
+        ],
+        "title": "ClientSource",
+        "description": "How a request authenticated: browser cookie or API token."
+      },
       "CronPreview": {
         "properties": {
           "timezone": {
@@ -15152,6 +15635,95 @@
         ],
         "title": "CursorPaginatedResponse[AdminChallengeRead]"
       },
+      "CursorPaginatedResponse_AdminClientSightingRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AdminClientSightingRead"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/CursorPagination"
+          },
+          "pagination_type": {
+            "type": "string",
+            "const": "cursor",
+            "title": "Pagination Type",
+            "default": "cursor"
+          },
+          "filter_attributes": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {},
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter Attributes"
+          },
+          "search_columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search Columns"
+          },
+          "order_columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Columns"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "pagination"
+        ],
+        "title": "CursorPaginatedResponse[AdminClientSightingRead]"
+      },
       "CursorPaginatedResponse_AdminCustomFieldRead_": {
         "properties": {
           "status": {
@@ -15240,95 +15812,6 @@
           "pagination"
         ],
         "title": "CursorPaginatedResponse[AdminCustomFieldRead]"
-      },
-      "CursorPaginatedResponse_AdminCustomFieldValueRead_": {
-        "properties": {
-          "status": {
-            "$ref": "#/components/schemas/ResponseStatus",
-            "default": "SUCCESS"
-          },
-          "message": {
-            "type": "string",
-            "title": "Message",
-            "default": "Success"
-          },
-          "error_code": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Error Code"
-          },
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/AdminCustomFieldValueRead"
-            },
-            "type": "array",
-            "title": "Data"
-          },
-          "pagination": {
-            "$ref": "#/components/schemas/CursorPagination"
-          },
-          "pagination_type": {
-            "type": "string",
-            "const": "cursor",
-            "title": "Pagination Type",
-            "default": "cursor"
-          },
-          "filter_attributes": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "items": {},
-                  "type": "array"
-                },
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Filter Attributes"
-          },
-          "search_columns": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Search Columns"
-          },
-          "order_columns": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Order Columns"
-          }
-        },
-        "type": "object",
-        "required": [
-          "data",
-          "pagination"
-        ],
-        "title": "CursorPaginatedResponse[AdminCustomFieldValueRead]"
       },
       "CursorPaginatedResponse_AdminEventRead_": {
         "properties": {
@@ -17070,6 +17553,95 @@
         ],
         "title": "OffsetPaginatedResponse[AdminChallengeRead]"
       },
+      "OffsetPaginatedResponse_AdminClientSightingRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AdminClientSightingRead"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/OffsetPagination"
+          },
+          "pagination_type": {
+            "type": "string",
+            "const": "offset",
+            "title": "Pagination Type",
+            "default": "offset"
+          },
+          "filter_attributes": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {},
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter Attributes"
+          },
+          "search_columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search Columns"
+          },
+          "order_columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Columns"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "pagination"
+        ],
+        "title": "OffsetPaginatedResponse[AdminClientSightingRead]"
+      },
       "OffsetPaginatedResponse_AdminCustomFieldRead_": {
         "properties": {
           "status": {
@@ -17158,95 +17730,6 @@
           "pagination"
         ],
         "title": "OffsetPaginatedResponse[AdminCustomFieldRead]"
-      },
-      "OffsetPaginatedResponse_AdminCustomFieldValueRead_": {
-        "properties": {
-          "status": {
-            "$ref": "#/components/schemas/ResponseStatus",
-            "default": "SUCCESS"
-          },
-          "message": {
-            "type": "string",
-            "title": "Message",
-            "default": "Success"
-          },
-          "error_code": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Error Code"
-          },
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/AdminCustomFieldValueRead"
-            },
-            "type": "array",
-            "title": "Data"
-          },
-          "pagination": {
-            "$ref": "#/components/schemas/OffsetPagination"
-          },
-          "pagination_type": {
-            "type": "string",
-            "const": "offset",
-            "title": "Pagination Type",
-            "default": "offset"
-          },
-          "filter_attributes": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "items": {},
-                  "type": "array"
-                },
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Filter Attributes"
-          },
-          "search_columns": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Search Columns"
-          },
-          "order_columns": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Order Columns"
-          }
-        },
-        "type": "object",
-        "required": [
-          "data",
-          "pagination"
-        ],
-        "title": "OffsetPaginatedResponse[AdminCustomFieldValueRead]"
       },
       "OffsetPaginatedResponse_AdminEventRead_": {
         "properties": {
@@ -19354,6 +19837,42 @@
         "title": "ResponseStatus",
         "description": "Standard API response status."
       },
+      "Response_AdminBackupDownloadTicket_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdminBackupDownloadTicket"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[AdminBackupDownloadTicket]"
+      },
       "Response_AdminBackupList_": {
         "properties": {
           "status": {
@@ -19498,6 +20017,42 @@
         "type": "object",
         "title": "Response[AdminBundlePlanRead]"
       },
+      "Response_AdminClientSummaryRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdminClientSummaryRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[AdminClientSummaryRead]"
+      },
       "Response_AdminCustomFieldRead_": {
         "properties": {
           "status": {
@@ -19533,42 +20088,6 @@
         },
         "type": "object",
         "title": "Response[AdminCustomFieldRead]"
-      },
-      "Response_AdminCustomFieldValueRead_": {
-        "properties": {
-          "status": {
-            "$ref": "#/components/schemas/ResponseStatus",
-            "default": "SUCCESS"
-          },
-          "message": {
-            "type": "string",
-            "title": "Message",
-            "default": "Success"
-          },
-          "error_code": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Error Code"
-          },
-          "data": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/AdminCustomFieldValueRead"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "type": "object",
-        "title": "Response[AdminCustomFieldValueRead]"
       },
       "Response_AdminFailedLoginOverviewRead_": {
         "properties": {
@@ -20290,6 +20809,42 @@
         "type": "object",
         "title": "Response[AdminUserDetailRead]"
       },
+      "Response_AdminUserUpdateRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdminUserUpdateRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[AdminUserUpdateRead]"
+      },
       "Response_Any_": {
         "properties": {
           "status": {
@@ -20697,6 +21252,46 @@
         "type": "object",
         "title": "Response[list[AdminTeamChallengeStats]]"
       },
+      "Response_list_AdminUserClientRead__": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/AdminUserClientRead"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "title": "Response[list[AdminUserClientRead]]"
+      },
       "Response_list_ChallengeStats__": {
         "properties": {
           "status": {
@@ -20847,7 +21442,9 @@
         "enum": [
           "pending",
           "success",
-          "failed"
+          "failed",
+          "skipped",
+          "cancelled"
         ],
         "title": "TaskStatus"
       },

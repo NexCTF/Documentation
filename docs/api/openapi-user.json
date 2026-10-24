@@ -104,6 +104,49 @@
         "description": "**API tokens:** not accepted, this endpoint needs a browser session."
       }
     },
+    "/api/v1/auth/reauth": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Reauth",
+        "description": "Re-prove the signed-in user's identity and re-sign this session in place.\n\nTakes the password, plus a TOTP code when 2FA is on; an account without a\npassword re-proves with its TOTP code alone, or by signing in through OAuth.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "reauth_api_v1_auth_reauth_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReauthRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ]
+      }
+    },
     "/api/v1/auth/reset-password": {
       "post": {
         "tags": [
@@ -915,7 +958,7 @@
             "APIKeyCookie_NexCTF": []
           }
         ],
-        "description": "**API tokens:** not accepted, this endpoint needs a browser session."
+        "description": "**API tokens:** not accepted, this endpoint needs a browser session.\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`."
       }
     },
     "/api/v1/me/tokens/scopes": {
@@ -1030,7 +1073,7 @@
           "me"
         ],
         "summary": "Revoke All Sessions",
-        "description": "Sign out every device, including the one making the request.\n\nIncluded so a user who suspects their cookie was stolen can end every\nsession without having to guess which one is the attacker's.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "description": "Sign out every device, including the one making the request, and revoke\nevery API token.\n\nIncluded so a user who suspects their cookie was stolen can end every\nsession without having to guess which one is the attacker's.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
         "operationId": "revoke_all_sessions_api_v1_me_sessions_delete",
         "responses": {
           "204": {
@@ -1129,7 +1172,7 @@
           "me"
         ],
         "summary": "Unlink Oauth Account",
-        "description": "Unlink an OAuth provider from the current user's account.\n\nRejected when the user has no password and this is their only linked provider,\nwhich would lock them out.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "description": "Unlink an OAuth provider from the current user's account.\n\nRejected when the user has no password and this is their only linked provider,\nwhich would lock them out.\n\n**API tokens:** not accepted, this endpoint needs a browser session.\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`.",
         "operationId": "unlink_oauth_account_api_v1_me_oauth__account_id__delete",
         "security": [
           {
@@ -1174,7 +1217,7 @@
           "me"
         ],
         "summary": "Change Password",
-        "description": "Verify the current password, replace it, and log out other sessions.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "description": "Verify the current password, replace it, and log out other sessions.\n\n**API tokens:** not accepted, this endpoint needs a browser session.\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`.",
         "operationId": "change_password_api_v1_me_password_post",
         "requestBody": {
           "content": {
@@ -1217,7 +1260,7 @@
           "me"
         ],
         "summary": "Totp Setup",
-        "description": "Generate a new TOTP secret and store it server-side (does not activate it yet).\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "description": "Generate a new TOTP secret and store it server-side (does not activate it yet).\n\n**API tokens:** not accepted, this endpoint needs a browser session.\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`.",
         "operationId": "totp_setup_api_v1_me_totp_setup_post",
         "responses": {
           "200": {
@@ -1247,7 +1290,7 @@
           "me"
         ],
         "summary": "Totp Enable",
-        "description": "Read the provisional secret from Redis, verify the OTP code, and enable TOTP.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "description": "Read the provisional secret from Redis, verify the OTP code, and enable TOTP.\n\n**API tokens:** not accepted, this endpoint needs a browser session.\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`.",
         "operationId": "totp_enable_api_v1_me_totp_enable_post",
         "requestBody": {
           "content": {
@@ -1290,7 +1333,7 @@
           "me"
         ],
         "summary": "Totp Disable",
-        "description": "Verify OTP code and disable TOTP.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "description": "Verify OTP code and disable TOTP.\n\n**API tokens:** not accepted, this endpoint needs a browser session.\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`.",
         "operationId": "totp_disable_api_v1_me_totp_disable_post",
         "requestBody": {
           "content": {
@@ -2306,6 +2349,15 @@
             }
           },
           {
+            "name": "redirect_uri",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Redirect Uri"
+            }
+          },
+          {
             "name": "scope",
             "in": "query",
             "required": false,
@@ -3117,6 +3169,8 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
             "title": "Name"
           },
           "country": {
@@ -3687,6 +3741,8 @@
           },
           "new_password": {
             "type": "string",
+            "maxLength": 256,
+            "minLength": 8,
             "title": "New Password"
           }
         },
@@ -3705,6 +3761,8 @@
           },
           "new_password": {
             "type": "string",
+            "maxLength": 256,
+            "minLength": 8,
             "title": "New Password"
           }
         },
@@ -4682,10 +4740,14 @@
         "properties": {
           "username": {
             "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
             "title": "Username"
           },
           "password": {
             "type": "string",
+            "maxLength": 256,
+            "minLength": 8,
             "title": "Password"
           },
           "email": {
@@ -5178,6 +5240,34 @@
           "is_active"
         ],
         "title": "PublicUserRead"
+      },
+      "ReauthRequest": {
+        "properties": {
+          "password": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          },
+          "totp_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totp Code"
+          }
+        },
+        "type": "object",
+        "title": "ReauthRequest"
       },
       "ResendVerificationRequest": {
         "properties": {
@@ -6258,6 +6348,7 @@
         "properties": {
           "answer": {
             "type": "string",
+            "maxLength": 16384,
             "title": "Answer"
           }
         },
@@ -6372,6 +6463,8 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
             "title": "Name"
           }
         },
