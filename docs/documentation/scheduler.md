@@ -25,7 +25,7 @@ when the event ends.
 | Type | What the job does, see [Job types](#job-types). |
 | Next run | When the job is due, in your local timezone, with the cron expression underneath for repeating jobs. |
 | Status | `scheduled` for a job still waiting, `completed` once a one-shot job has run, `disabled` for a job that is turned off. |
-| Last run | When the job was last due to run. |
+| Last run | When the job last ran, on schedule or through **Run now**. |
 
 ## Creating a job
 
@@ -137,22 +137,34 @@ Opening a job shows what it will do and what it has done.
 the expression driving it. **Edit** changes the name, schedule, cron and parameters,
 **Disable** stops a job from firing, and **Delete** removes it along with its history.
 
-**Run now** executes the job immediately, without touching its schedule: the job still
-fires on its own at its next run time afterwards. Useful for checking that the parameters
-are right.
+**Run now** queues a run immediately, without touching its schedule: the job still
+fires on its own at its next run time afterwards, and **Last run** moves to now. Useful
+for checking that the parameters are right. If a run of the job is already queued or
+running, nothing is queued and the button says so.
 
 ### Execution history
 
-Every run is recorded with its status, start and completion time, and the error message
-if it failed.
+Every run is recorded with its status and its start and completion time. **Details**
+links to the run in the [task queue](#the-task-queue), which holds its log and, for a
+failed run, the traceback.
+
+| Status | Meaning |
+| --- | --- |
+| `pending` | Queued, or running. |
+| `success` | The job ran to completion. |
+| `failed` | The job raised an error, or the run never reported back: the worker was stopped mid-run, or the run hit its one hour limit. |
+| `skipped` | The job came due while a run of it was still queued or running. Runs of one job never overlap, so this occurrence is dropped. |
+| `cancelled` | The run was cancelled or deleted from the task queue before it finished. |
 
 A failed run is **not** retried. A one-shot job is retired either way, and a repeating
 job moves on to its next occurrence, so check the history after an important job was due.
 Only the last 100 runs of a job are kept.
 
-Two failures are recorded by the platform rather than by the job itself:
+## The task queue
 
-| Error | Meaning |
-| --- | --- |
-| `skipped: the previous run is still in progress` | The job came due while its last run had not finished. Scheduled runs of one job never overlap, so this occurrence is dropped. |
-| `lost: the run ended without recording a result` | The run never reported back: the worker was stopped mid-run and the run outlasted its five minute grace period, or the run hit its one hour limit and was stopped. |
+**Admin → Task queue** opens the worker's own dashboard, live: every queued, running and
+finished background job, scheduled jobs and plugin tasks alike, with its log. It is the
+place to look when a run failed, or when nothing seems to fire at all.
+
+Failed jobs and the queue's history are kept for 30 days, then purged every night, so
+the **Details** link of an older run can come up empty.

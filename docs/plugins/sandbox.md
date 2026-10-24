@@ -152,7 +152,7 @@ function that can take it.
 
 !!! warning "Teams can edit their own fields"
 
-    With [**Allow Team Customization**](../documentation/customization.md#what-players-can-change-for-themselves)
+    With [**Allow team customization**](../documentation/customization.md#what-players-can-change-for-themselves)
     on, team members can change their team's custom fields, and with them what the
     checker sees. Before deriving a flag from a field, make sure the team cannot edit it.
 

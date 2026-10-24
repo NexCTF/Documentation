@@ -10,9 +10,9 @@ links to.
 
 ## What to change, in order
 
-1. **[Name and description](settings/competition.md)**. **CTF Name** is the browser tab
+1. **[Name and description](settings/competition.md)**. **CTF name** is the browser tab
    title, the fallback wherever no logo is set, and the name in every email the
-   instance sends. **CTF Description** is the blurb on the home page. Both sit under
+   instance sends. **CTF description** is the blurb on the home page. Both sit under
    **Admin → Settings → Competition**.
 2. **[Logo, colors and favicon](settings/appearance.md)**. One accent color, two logos,
    a favicon, a login background, and a custom CSS slot for the rest. Under
@@ -26,18 +26,18 @@ links to.
 
 | Setting | Category | Seen on |
 | --- | --- | --- |
-| CTF Name | Competition | Tab title, navigation bar, login and registration cards, outgoing email |
+| CTF name | Competition | Tab title, navigation bar, login and registration cards, outgoing email |
 | Logo URL | Appearance | Player navigation bar, admin sidebar, home page, login card, outgoing email |
-| Accent Color | Appearance | Buttons, badges, links, active tabs, focus rings |
+| Accent color | Appearance | Buttons, badges, links, active tabs, focus rings |
 | Favicon URL | Appearance | Browser tab, bookmarks, home screen icons |
-| Login Background URL | Appearance | The login screen and its error states |
+| Login background URL | Appearance | The login screen and its error states |
 
 ## What players can change for themselves
 
 Two Competition settings, both on by default:
 
-- **Allow Profile Customization** lets players edit their own links and custom fields.
-- **Allow Team Customization** lets team members edit the team name, country, links and
+- **Allow profile customization** lets players edit their own links and custom fields.
+- **Allow team customization** lets team members edit the team name, country, links and
   custom fields.
 
 Turning either off mid-event freezes what is already there rather than clearing it,

@@ -11,4 +11,5 @@ status: wip
     anything it says as a summary of intent, not as documentation.
 
 Security hub: sessions and failed logins grouped by address, to spot shared accounts,
-players on several teams, and password spraying.
+players on several teams, and password spraying, and the user-agents each account
+signs in with, to spot AI agents and scripts.

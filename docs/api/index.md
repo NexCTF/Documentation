@@ -65,6 +65,9 @@ A request outside its scopes is refused with `403 SCOPE-403`, naming the scope
 that was missing. The [full scope list](../documentation/authentication.md#token-scopes)
 and the endpoints no token can reach are documented with authentication.
 
+Endpoints that need a [recent sign-in](../documentation/authentication.md#re-authentication)
+say so in their description too, and whether a token is accepted there instead.
+
 ## The response envelope
 
 Every response, success or failure, is an object with the same outer shape. The
@@ -98,6 +101,7 @@ distinct failures share a status code and are told apart only here.
 | --- | --- |
 | `AUTH-401` | Wrong username or password. |
 | `AUTH-403-DISABLED` | The account was deactivated by an admin. |
+| `AUTH-REAUTH-REQUIRED` | The session last signed in too long ago for this action; confirm with `POST /api/v1/auth/reauth`. |
 | `SCOPE-403` | The token does not carry the scope this endpoint needs. |
 | `SCOPE-403-SESSION` | This endpoint refuses tokens; it needs a browser session. |
 | `SCOPE-422` | A requested token scope is not available to this account. |

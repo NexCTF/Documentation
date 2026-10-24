@@ -10,9 +10,9 @@ Guides and reference for running and administering NexCTF.
 
 ## Setup
 
-- [Deployment](deployment.md): production deployment, TLS, database backup and restore, scaling.
+- [Deployment](deployment.md): production deployment, TLS, logs, metrics, database backup and restore, scaling.
 - Settings: [Competition](settings/competition.md), [Security](settings/security.md), [Email](settings/email.md), [Visibility](settings/visibility.md), [Appearance](settings/appearance.md).
-- [Authentication](authentication.md): registration, login, 2FA, sessions, scoped API tokens, and OAuth2/OIDC in both directions.
+- [Authentication](authentication.md): registration, login, 2FA, sessions, re-authentication, scoped API tokens, and OAuth2/OIDC in both directions.
 - [Customization](customization.md): what to rebrand, in what order, and where each piece of it lives.
 
 ## Content
@@ -22,13 +22,13 @@ Guides and reference for running and administering NexCTF.
 - [Links](links.md): external shortcuts in the player navigation and admin sidebar.
 - [Files](files.md): challenge files, static assets, and public links.
 - [Notifications](notifications.md): announcements during an event.
-- [Scheduler](scheduler.md): one-shot and cron jobs: challenge releases, timed announcements, nightly backups.
+- [Scheduler](scheduler.md): one-shot and cron jobs: challenge releases, timed announcements, nightly backups, and the task queue.
 
 ## Administration
 
 - [Users & Teams](users-teams.md): users, teams, roles, permissions.
 - [Events](events.md): system event log across accounts, security, and gameplay.
-- [Security](security.md): sessions and failed logins grouped by address.
+- [Security](security.md): sessions and failed logins grouped by address, and the clients each account uses.
 - [Submissions](submissions.md): flag submission history and review.
 - [Feedback](feedback.md): player feedback on challenges.
 - [Sync](sync.md): export and import event content as a bundle.

@@ -25,7 +25,7 @@ The `app` container is not just the API. A supervisor inside it runs three proce
 - **backend**: the FastAPI application (`WORKERS` uvicorn workers).
 - **worker**: the background task runner. It fires [scheduled jobs](scheduler.md), runs
   plugin tasks, and does routine maintenance. Its queue lives in PostgreSQL tables,
-  not in the cache.
+  not in the cache, and **Admin → Task queue** shows it live.
 
 !!! info "The frontend is not a separate container"
     It is built at image build time and served as static files by Caddy from inside the
@@ -57,9 +57,12 @@ next to `compose.yml`, or from your orchestrator.
 | `WORKERS` | `4` | Backend worker processes. |
 | `BACKEND_CORS_ORIGINS` | *(empty)* | Comma-separated extra origins. `FRONTEND_HOST` is always allowed. |
 | `TRUSTED_PROXY_COUNT` | `1` | Number of proxies in front of the app. See [Client IP addresses](#client-ip-addresses). |
+| `TLS_TERMINATED_UPSTREAM` | *(empty)* | `true` when a proxy in front already terminates TLS. See [TLS](#tls). |
 | `DEMO_DATA` | *(empty)* | `true` seeds example challenges, teams and submissions. Never on a real event. |
 | `NEXCTF_PLUGINS` | *(empty)* | Comma-separated plugin specifiers. See [Installing plugins](../plugins/installation.md). |
 | `NEXCTF_DISABLED_PLUGINS` | *(empty)* | Comma-separated plugin package names kept installed but not loaded. See [Disabling a plugin](../plugins/installation.md#disabling-a-plugin). |
+| `METRICS_ENABLED` | `true` | Serve Prometheus metrics. See [Metrics](#metrics). |
+| `METRICS_TOKEN` | *(none)* | Bearer token a scraper must send. Outside development, metrics are only served once it is set. |
 
 !!! danger "`SECRET_KEY` is mandatory outside development"
     With `ENVIRONMENT` set to anything other than `development`, the application refuses
@@ -118,6 +121,8 @@ empty, matching the Caddyfile the container generates.
 | `POSTGRES_POOL_SIZE` | `20` | Connections held open per backend worker. |
 | `POSTGRES_MAX_OVERFLOW` | `40` | Extra connections allowed above the pool. |
 | `POSTGRES_POOL_TIMEOUT` | `10` | Seconds to wait for a free connection. |
+| `POSTGRES_AUTH_POOL_SIZE` | `5` | Connections held open per backend worker for authenticating requests, kept apart from the main pool. |
+| `POSTGRES_AUTH_MAX_OVERFLOW` | `10` | Extra connections allowed above the authentication pool. |
 
 ### Cache
 
@@ -139,8 +144,12 @@ empty, matching the Caddyfile the container generates.
 | `S3_ACCESS_KEY` | `admin` | Change it. |
 | `S3_SECRET_KEY` | `admin` | Change it. |
 | `S3_REGION` | `us-east-1` | |
-| `S3_TLS` | `false` | |
+| `S3_TLS` | `false` | Connect to the storage over HTTPS. |
 | `S3_PUBLIC_URL` | *(from `DOMAIN`)* | Browser-facing URL used inside presigned download links. |
+
+With an external S3, point `S3_HOST`, `S3_PORT`, `S3_TLS` and `S3_PUBLIC_URL` at it.
+The bundled `s3` service is then unused: remove it from `compose.yml`, along with the
+`app` service's `depends_on` entry for it.
 
 !!! warning "`s3.<DOMAIN>` needs its own DNS record"
     Challenge files are served through presigned URLs that the **browser** fetches
@@ -162,6 +171,14 @@ empty, matching the Caddyfile the container generates.
 
 Caddy inside the container generates its own certificate by default. **It does not use
 Let's Encrypt or any other ACME provider.** You have two supported options.
+
+The compose file publishes the container's ports on every interface of the host:
+
+```yaml
+ports:
+  - "8080:80"
+  - "8443:443"
+```
 
 === "Mount your own certificates"
 
@@ -186,17 +203,30 @@ Let's Encrypt or any other ACME provider.** You have two supported options.
 
 === "Front it with your own reverse proxy"
 
-    Terminate TLS in your existing proxy and forward to the container's HTTP port. The
-    compose file binds the ports to loopback only:
+    Terminate TLS in your existing proxy and tell the container so:
+
+    ```bash title=".env"
+    TLS_TERMINATED_UPSTREAM=true
+    TRUSTED_PROXY_COUNT=2
+    ```
+
+    Caddy then serves plain HTTP for both `DOMAIN` and `s3.DOMAIN`, with no certificate
+    of its own, and keeps the `X-Forwarded-For` your proxy sends from a private address
+    instead of replacing it. The startup log line
+    `[start] TLS: terminated upstream, serving plain HTTP` confirms it.
+
+    Forward both hostnames to the container's HTTP port, `8080` on the host. Caddy routes
+    on the `Host` header, so the proxy must pass it through unchanged. When the proxy
+    runs on the same host, bind the ports to loopback so nothing reaches the container
+    around it:
 
     ```yaml
     ports:
       - "127.0.0.1:8080:80"
-      - "127.0.0.1:8443:443"
     ```
 
-    Forward to `127.0.0.1:8080`, and set `TRUSTED_PROXY_COUNT` to the number of proxies
-    you added.
+    `TRUSTED_PROXY_COUNT` counts your proxies plus the bundled Caddy, so `2` for a single
+    proxy in front.
 
 ### Client IP addresses
 
@@ -208,7 +238,8 @@ Rate limiting, the event log and session records all record a client IP.
 | `0` | The direct connection address. `X-Forwarded-For` is ignored entirely. |
 | `N` | The Nth entry from the right of `X-Forwarded-For`. |
 
-Count every proxy that appends to the header, including the bundled Caddy. Setting it
+Count every proxy that appends to the header, including the bundled Caddy. The
+default of `1` is right when clients connect to the container directly. Setting it
 too high lets a client spoof its own IP and slip past rate limits; too low and every
 request appears to come from your proxy, so one player's rate limit throttles everyone.
 
@@ -231,6 +262,60 @@ Any failure in steps 1 to 3 stops the container rather than starting a half-migr
 instance. `docker compose logs app` has the reason, on a line starting with `[start]`.
 
 The container is healthy once `GET /api/v1/info` answers.
+
+## Logs
+
+Outside development, each process writes JSON lines to the container output and to a
+rotated file of its own under `/var/log/nexctf`: `api.log` for the backend, `worker.log`
+for the worker, `migrate.log` for the migrations run at start. The compose file keeps
+that directory in the `app-logs` volume. Every line names the process it came from in
+its `service` field, and a line logged during a request carries the signed-in user.
+
+| Variable | Default | Notes |
+| --- | --- | --- |
+| `LOG_LEVEL` | `INFO` | `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`. |
+| `LOG_FORMAT` | `json` | `json`, or `console` for human-readable lines. `console` in development. |
+| `LOG_FILES` | `true` | Write the log files. Off in development. Turn it off when your orchestrator already collects the container output. |
+| `LOG_DIR` | `/var/log/nexctf` | Where the files go. |
+| `LOG_MAX_BYTES` | `50000000` | Size at which a file is rotated. |
+| `LOG_BACKUPS` | `5` | Rotated files kept per process. |
+| `LOG_SQL` | `false` | Log every SQL statement. Verbose; for debugging only. |
+
+Health checks the container makes on itself are left out of the access log.
+
+## Metrics
+
+The backend serves [Prometheus](https://prometheus.io/) metrics at `/metrics` on the
+main hostname, next to `/api`. They are on by default, but outside development nothing
+is served until `METRICS_TOKEN` is set; the backend logs a warning at start to say so.
+
+```bash title=".env"
+METRICS_TOKEN=a-long-random-value
+```
+
+The scraper sends it as a bearer token:
+
+```yaml title="prometheus.yml"
+scrape_configs:
+  - job_name: nexctf
+    scheme: https
+    authorization:
+      credentials: a-long-random-value
+    static_configs:
+      - targets: ["ctf.example.com"]
+```
+
+| Metric | What it tracks |
+| --- | --- |
+| `nexctf_build_info`, `nexctf_plugin_info` | Running version, and each plugin with its state. |
+| `nexctf_ctf_time_seconds`, `nexctf_ctf_phase` | Event start, end and freeze times, and the phase the event is in. |
+| `nexctf_users`, `nexctf_teams`, `nexctf_challenges`, `nexctf_active_sessions` | Registered accounts, teams, challenges, and live sessions. |
+| `nexctf_submissions_total`, `nexctf_challenge_solves`, `nexctf_hint_unlocks_total` | Gameplay: submissions by outcome, solves per challenge, hint unlocks. |
+| `nexctf_login_failures_total`, `nexctf_captcha_failures_total`, `nexctf_rate_limited_total` | Failed sign-ins by reason, rejected captchas, requests refused by a rate limit. |
+| `nexctf_emails_total` | Emails sent, failed, or dropped because email is not configured. |
+| `nexctf_queue_*` | The task queue: jobs by state, and the count and run times of recently finished ones. |
+
+`METRICS_ENABLED=false` removes the endpoint altogether.
 
 ## The first admin account
 
@@ -263,13 +348,14 @@ start with `nexctf_` or the container refuses to start.
 
 ## Backups
 
-Persistent state lives in four named volumes.
+Persistent state lives in named volumes.
 
 | Volume | Contents | Back up? |
 | --- | --- | --- |
 | `app-db-data` | PostgreSQL: users, teams, challenges, submissions, sessions, settings. | **Yes.** This is the event. |
 | `app-s3-data` | Challenge files, uploads, and the database dumps described below. | **Yes.** Not reconstructible. |
 | `caddy-data` | Caddy's certificate store. | Optional; regenerated on start. |
+| `app-logs` | The [log files](#logs). | Only if you keep logs. |
 | `app-redis-data` | Cache, rate-limit counters, pending reset tokens, OAuth codes. | No. |
 
 Redis holds nothing you cannot lose. Sessions themselves are rows in PostgreSQL, so a
@@ -366,6 +452,18 @@ $ curl -H "Authorization: Bearer nexctf_..." -X POST \
     "https://ctf.example.com/api/v1/admin/backup"
 ```
 
+Downloading a dump takes two requests. The first exchanges its key for a ticket, which
+works once and only for 60 seconds; the second fetches the dump with that ticket, and
+needs no other credential:
+
+```console
+$ curl -H "Authorization: Bearer nexctf_..." -X POST \
+    "https://ctf.example.com/api/v1/admin/backup/download?key=backups/nexctf-20260913T041500Z-manual-d4a9c17e3b52.dump"
+{"status": "SUCCESS", ..., "data": {"ticket": "..."}}
+$ curl -o nexctf.dump \
+    "https://ctf.example.com/api/v1/admin/backup/download?ticket=..."
+```
+
 Take a dump immediately before every upgrade.
 
 ## Upgrades
@@ -389,10 +487,12 @@ The knobs that matter, and how they interact:
 
 - **`WORKERS`**: backend processes in the `app` container. Start at the number of CPU
   cores available to it.
-- **`POSTGRES_POOL_SIZE` / `POSTGRES_MAX_OVERFLOW`**: connections *per worker*. The
-  ceiling is `WORKERS × (POOL_SIZE + MAX_OVERFLOW)`, and the bundled PostgreSQL is
-  started with `max_connections=350`. At the defaults that is `4 × 60 = 240`, within
-  budget, but raising `WORKERS` without raising `max_connections` will exhaust it.
+- **`POSTGRES_POOL_SIZE` / `POSTGRES_MAX_OVERFLOW`**, and their `POSTGRES_AUTH_*`
+  counterparts: connections *per worker*. The ceiling is
+  `WORKERS × (POOL_SIZE + MAX_OVERFLOW + AUTH_POOL_SIZE + AUTH_MAX_OVERFLOW)`, and the
+  bundled PostgreSQL is started with `max_connections=350`. At the defaults that is
+  `4 × 75 = 300`, within budget, but raising `WORKERS` without raising
+  `max_connections` will exhaust it.
 - The **worker** is a single process per `app` container, separate from `WORKERS`. Jobs
   are queued in PostgreSQL and claimed with row locks, so a job fires once even if a
   second copy of the container runs a second worker, though the

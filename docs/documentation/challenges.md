@@ -23,7 +23,7 @@ type, status, category or tags, and sorted by any column.
 
 ## Creating a challenge
 
-**New Challenge** first asks for a type. Standard is the built-in one; any type added by
+**New challenge** first asks for a type. Standard is the built-in one; any type added by
 a [plugin](../plugins/index.md) shows up here too.
 
 ![Select challenge type](../assets/images/challenges/challenge_type.webp)
@@ -137,7 +137,7 @@ it once and the whole team sees it.
 ### Files
 
 Attachments are picked from the shared file store rather than uploaded here: upload them
-under [Files](files.md) first, then use **Manage Files** on the question to attach them.
+under [Files](files.md) first, then use **Manage files** on the question to attach them.
 
 ![Attach files to question](../assets/images/challenges/add_file.webp)
 
@@ -173,7 +173,7 @@ The question stays open afterwards, and the team can go on to solve it normally.
 
 ### The AI canary
 
-Turning on **Enable AI Canary**, under the *Beta* category of the settings, appends a
+Turning on **Enable AI canary**, under the *Beta* category of the settings, appends a
 hidden instruction to every challenge and question description sent to players. It reads
 as an instruction to an automated agent: submit this validation token to confirm scoring
 access. The token is derived from the challenge and the instance's `SECRET_KEY`, so it
@@ -198,7 +198,7 @@ Submitting the token never scores, and raises a `submission.canary` event in the
 
 ## Score adjustments
 
-**Admin → Score Adjustments** grants or removes points from a team outside the normal
+**Admin → Score adjustments** grants or removes points from a team outside the normal
 scoring, each with an amount and a reason.
 
 Every adjustment already shows on the team's own page, with its amount and reason. An

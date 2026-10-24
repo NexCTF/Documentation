@@ -14,14 +14,14 @@ The settings live under **Admin → Settings → Appearance**.
 | --- | --- | --- |
 | Logo URL | Image | Empty, the CTF name is shown as text |
 | Logo URL (dark mode) | Image | Empty, falls back to the main logo |
-| Accent Color | Color | `#3b82f6` |
+| Accent color | Color | `#3b82f6` |
 | Favicon URL | Image | Empty, the bundled NexCTF icon |
-| Login Background URL | Image | Empty, the card sits on the page background |
-| Default Theme | Choice | `system` |
+| Login background URL | Image | Empty, the card sits on the page background |
+| Default theme | Choice | `system` |
 | Custom CSS | Text | Empty |
 
 **Save** applies the whole category at once, and a dot on the tab marks unsaved changes.
-Everything but **Default Theme** repaints open pages immediately over the public event
+Everything but **Default theme** repaints open pages immediately over the public event
 stream; a page that missed the push picks the change up within 60 seconds. The
 [Admin API](../../api/admin.md) reads and writes the same values under
 `appearance.logo_url`, `appearance.logo_url_dark`, `appearance.accent_color`,

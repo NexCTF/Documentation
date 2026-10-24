@@ -29,6 +29,8 @@ $ docker compose up -d --force-recreate app
 Anything that fails in steps 1 to 3 stops the container instead of starting a
 half-migrated instance, so a typo in a specifier shows up as a container that will not
 come up. `docker compose logs app` has the reason, on a line starting with `[start]`.
+That log repeats the list being installed, with any credentials inside a URL, such as a
+token in a `git+https://` specifier, masked as `****`.
 
 ## Specifiers
 

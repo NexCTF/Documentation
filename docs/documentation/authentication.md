@@ -13,7 +13,9 @@ authentication, sessions, API tokens, and OAuth2 / OpenID Connect in both direct
 
 Registration is open by default and controlled by `ctf.allow_registration` in
 [Competition settings](settings/competition.md). Turning it off hides the form and
-rejects the endpoint, so late sign-ups stop without touching anything else.
+rejects the endpoint, so late sign-ups stop without touching anything else. It also
+stops [external providers](#logging-in-with-an-external-provider) from creating new
+accounts; existing accounts keep signing in through them.
 
 Whether an email address is required depends on whether [email](settings/email.md) is
 configured:
@@ -56,7 +58,8 @@ case-insensitively.
 
 The form always reports success, whether or not the address matches an account, so it
 cannot be used to test which addresses are registered. As with verification, requesting
-a second link leaves the first one valid until it expires.
+a second link leaves the first one valid until it expires, or until the password
+changes: a reset, by any link, retires every other link issued for the account.
 
 Without email configured there is no self-service reset. An admin can still generate a
 reset link for any user from **Admin → Users**; the link is shown ready to copy, and can
@@ -79,18 +82,23 @@ failures as `user.login_failed` with the reason:
 | --- | --- |
 | `unknown_user` | No account with that username. |
 | `bad_password` | Wrong password. |
+| `disabled` | Password correct, account deactivated by an admin. |
 | `bad_totp` | Password correct, TOTP code wrong. |
-| `disabled` | Account deactivated by an admin. |
 | `email_not_verified` | Credentials correct, verification link not used yet. |
+
+A deactivated account is only told so once the password is right; until then it gets
+the same answer as any wrong password. [Re-authentication](#re-authentication) failures
+are recorded the same way, with the reason prefixed `reauth_`.
 
 A run of `unknown_user` failures from one address is the signature of username
 enumeration; a run of `bad_password` against one account is a brute-force attempt.
 
 [**Admin → Security → Failed logins**](security.md) does that grouping for you: failed attempts per
 address over the last 24 hours or the whole event, with the usernames each address
-tried. By default it lists only addresses that tried more than one username, which is
-what password spraying and credential stuffing look like; *Show every failing address*
-lists the rest, and the search box finds any address.
+tried, most usernames first. An address that tried several usernames is what password
+spraying and credential stuffing look like. The **Usernames** column filters on
+*Several* or *One*, **Known accounts** on whether a tried username *Matches an account*,
+and the search box finds any address or username.
 
 ## Two-factor authentication
 
@@ -105,25 +113,33 @@ expires and leaves the account unchanged.
 
 Once enabled, login asks for the 6-digit code after the password. Codes from the
 immediately preceding and following time step are accepted, so a device whose clock
-drifts by up to 30 seconds still works.
+drifts by up to 30 seconds still works. Each code is accepted once: replaying one that
+was just used is refused, even inside its time step.
 
 Disabling TOTP requires a current code, so someone who walks up to an unlocked browser
 cannot quietly remove it.
 
 !!! warning "There are no recovery codes"
     A user who loses their authenticator cannot recover the account themselves. An admin
-    has to issue a password-reset link from **Admin → Users**. Make sure at least one
+    has to remove it with **Reset TOTP** under **Admin → Users → *user***, after which the
+    user signs in with the password alone and can enrol again. Make sure at least one
     admin account is reachable by someone other than the person who owns it.
 
 ## Sessions
 
 Signing in sets a signed `NexCTF` cookie, valid for **24 hours** and marked `Secure`
 outside development. Session records live in PostgreSQL, not in the cache, so restarting
-the cache container does not sign anyone out.
+the cache container does not sign anyone out. Expired sessions are purged every night.
+
+**Idle session timeout (minutes)**, under [Security settings](settings/security.md)
+(`auth.session_idle_minutes`), also signs a browser session out after that long without
+a request, on top of the 24 hour limit. It defaults to `0`, which disables it, and goes
+up to `1440`. It does not apply to API tokens.
 
 From their profile settings a user can see every active session, with its browser user
 agent, originating and most recent IP address, and last activity. Any session can be
-revoked individually, or all of them at once.
+revoked individually, or all of them at once. Signing out on every device also revokes
+every API token the user holds.
 
 Admins see the same list for any account under **Admin → Users → *user***, and can sign
 one device out from there without touching the password. The session an admin is
@@ -133,24 +149,64 @@ with the target account in the metadata.
 
 [**Admin → Security → Sessions**](security.md) turns the same records around, listing addresses rather
 than accounts: who is signed in right now, or who signed in over the last 24 hours or
-the whole event, grouped by the address they came from. By default it lists only
-addresses shared by several accounts, each marked *Same team* or *Different teams*; the
-second is the quick way to spot one player running accounts on two teams. *Show every
-address* lists the rest, and the search box finds any address.
+the whole event, grouped by the address they came from, the addresses with the most
+accounts first. A shared address is marked *Same team* or *Different teams*; the second
+is the quick way to spot one player running accounts on two teams. The **Accounts**
+column filters on *Shared* or *Single account*, **Teams** on *Different teams* or *Same
+team*, and the search box finds any address, username or team.
+
+The **Clients** tab lists the user-agents each account has been seen with over the same
+windows, and whether it came through a *Browser session* or an *API token*, naming the
+token. Each user-agent is sorted into *Browser*, *AI* or *Automation* by matching it
+against two lists of patterns under the *Beta* settings, **AI user-agent patterns** and
+**Automation user-agent patterns**, one pattern per line, matched case-insensitively
+anywhere in the string. A client sending no user-agent at all counts as automation.
+The same list for one account is under **Admin → Users → *user***.
+
+!!! info "A user-agent is a hint, not proof"
+    The client sends its own user-agent, and anything can send any string. A match is
+    worth a look; the absence of one proves nothing.
 
 !!! info "Revoking a session is not the same as locking an account out"
     A revoked session only ends that one device. Someone who still knows the password
-    signs straight back in. To actually stop an account, deactivate it: that bumps the
-    session version and invalidates every session at once.
+    signs straight back in. To actually stop an account, deactivate it: every session
+    and API token it holds stops working at once.
 
-Two things invalidate sessions everywhere at once, by bumping the account's session
-version:
+These end every session of an account at once:
 
-- changing the account password
-- an admin deactivating the account
+- changing or resetting the account password, which also revokes every API token
+- signing out on every device, which also revokes every API token
+- an admin deactivating the account, which also stops its API tokens
+- an admin granting the account the admin role, so that it signs in again before
+  using it
 
 Rotating `SECRET_KEY` invalidates every session on the instance, since the cookie
 signature no longer verifies.
+
+### Re-authentication
+
+Some actions need a recent sign-in, not just a valid session: the browser session must
+have proved who it is within the last **10 minutes**. Past that, the request is refused
+with **401 `AUTH-REAUTH-REQUIRED`**, and the interface asks *Confirm it's you* before
+retrying it. The user enters their password, plus a TOTP code if 2FA is on; an account
+without a password confirms with its TOTP code, or by signing in again through its
+provider. Confirming renews the same session in place, so it stays on the session list
+as one device.
+
+Attempts are limited by the same rate limit as the login form, and recorded in the
+[event log](events.md), as `user.reauth` on success and as `user.login_failed` with a
+`reauth_` reason on failure.
+
+| Needs a recent sign-in | API tokens |
+| --- | --- |
+| Creating an API token, changing the password, setting up, enabling or disabling TOTP, unlinking a provider | Refused, see [below](#endpoints-a-token-cannot-reach) |
+| An admin creating an admin account, granting the admin role, changing a user's email address, resetting a user's TOTP, issuing a password-reset link | Refused |
+| Downloading, restoring or deleting a [database backup](deployment.md#backups) | Accepted, no re-authentication |
+| Creating, editing or deleting an OAuth provider or OAuth client | Accepted |
+| Deleting a user, demoting or deactivating an admin | Accepted |
+| Saving the registration switch, the login rate limit, the idle timeout, the captcha switch, any email setting, or custom CSS | Accepted |
+
+A token is its own proof, so where tokens are accepted at all, they skip the check.
 
 ## API tokens
 
@@ -168,7 +224,7 @@ $ curl -H "Authorization: Bearer nexctf_..." https://ctf.example.com/api/v1/info
 | --- | --- |
 | Prefix | Every token starts with `nexctf_`, which makes them easy to catch in secret scanners. |
 | Storage | Only a SHA-256 hash is stored. The value is shown once, at creation. |
-| Expiry | Optional. Without one the token is valid until revoked. |
+| Expiry | Optional. Without one the token is valid until revoked. An expired token is deleted a week after it expires. |
 | Revocation | Immediate, from the same screen. |
 | Last used | Shown next to each token, or *Never used*. Updated at most once every five minutes, so a token in constant use can read up to five minutes behind. |
 | Permissions | Chosen per token, from the scopes below. A token never carries more than it was granted. |
@@ -196,7 +252,7 @@ Admins can additionally grant the administrative groups:
 | Group | Covers |
 | --- | --- |
 | `admin.challenge` | Challenges, questions, solutions, hints, files, submissions, score adjustments. |
-| `admin.user` | Users, custom fields, and the session and failed-login views under **Admin → Security**. |
+| `admin.user` | Users, custom fields, and the session, failed-login and client views under **Admin → Security**. |
 | `admin.team` | Teams. |
 | `admin.scoreboard` | Scoreboard and statistics. |
 | `admin.notification` | Notifications and email. |
@@ -235,10 +291,12 @@ Some endpoints refuse bearer authentication outright and answer **403
 `SCOPE-403-SESSION`**, whatever scopes the token carries:
 
 - creating an API token
-- revoking one of your own sessions
+- revoking one of your own sessions, or all of them
 - unlinking an OAuth provider
 - changing the password
 - enrolling in or disabling TOTP
+- as an admin: creating an admin account, granting the admin role, changing a user's
+  email address, resetting a user's TOTP, or issuing a password-reset link
 
 These are the operations that change how an account is secured, and requiring a browser
 session keeps a leaked token from being used to entrench itself.
@@ -264,10 +322,15 @@ one to keep in use: issue a narrowly scoped token for each job and revoke the de
 
 ## Logging in with an external provider
 
-NexCTF can delegate login to any OAuth2 / OpenID Connect provider that publishes a
-discovery document: Keycloak, Authentik, Auth0, GitLab, Google, and others. Providers
-are configured at **Admin → OAuth providers**, and each one you activate adds a button
-to the login page.
+NexCTF can delegate login to any OpenID Connect provider: Keycloak, Authentik, Auth0,
+GitLab, Google, and others. Providers are configured at **Admin → OAuth providers**, and
+each one you activate adds a button to the login page.
+
+The provider has to be a full OpenID Connect one. Its discovery document must advertise
+an issuer, a JWKS URL and a userinfo endpoint, and its token response must carry an ID
+token. NexCTF checks that ID token's signature, issuer, audience and nonce, and that
+the userinfo `sub` matches it, and it sends a PKCE (`S256`) challenge with every sign-in.
+A plain OAuth2 provider with no ID token, such as a GitHub OAuth app, is refused.
 
 | Field | Notes |
 | --- | --- |
@@ -275,7 +338,7 @@ to the login page.
 | Name | Label shown on the login button. |
 | Client ID / Client secret | Issued by the provider. |
 | Discovery URL | The provider's `.well-known` document. Endpoints are read from it, so you never enter them individually. |
-| Scopes | Space-separated. Defaults to `openid email profile`. |
+| Scopes | Space-separated. Defaults to `openid email profile`. Keep `openid`, or the provider returns no ID token. |
 | Icon URL | Optional image for the login button. |
 | Active | Inactive providers are hidden from the login page and their endpoints return 404. |
 
@@ -299,11 +362,13 @@ On a successful callback the provider's subject identifier is looked up:
 
 - **Known subject** → sign in to the account it is linked to.
 - **Unknown subject, user already signed in** → link the provider to the current account.
-- **Unknown subject, nobody signed in** → create a new account.
+- **Unknown subject, nobody signed in** → create a new account, if
+  [registration](#registration) is open. Otherwise the sign-in is refused.
 
 New accounts take their username from the provider (`preferred_username`, then `login`,
 then the subject id) and get a short random suffix if that name is already taken. The
-provider's email is copied over and marked verified, since the provider vouched for it.
+provider's email is copied over and marked verified, but only when the provider marks it
+`email_verified`; otherwise the account is created without one.
 
 !!! info "Accounts are never matched by email address"
     A matching email does **not** attach a provider identity to an existing local
@@ -366,6 +431,11 @@ token expires.
 
 Request `roles` when the other application needs to mirror your admin list; without it a
 client cannot tell an admin from a player.
+
+Scopes are checked again when the code is exchanged: the token only carries the ones the
+client is still allowed, so narrowing a client's *Allowed scopes* also applies to codes
+already issued. A client that sent a PKCE challenge must send its verifier, and one that
+did not must not send one.
 
 !!! info "Role restrictions are enforced on every authorization"
     *Allowed roles* is checked when the user reaches the consent screen, not only at
