@@ -796,7 +796,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response_PublicInfo_"
+                  "$ref": "#/components/schemas/Response_PublicInfoRead_"
                 }
               }
             }
@@ -3261,6 +3261,11 @@
             "title": "Links",
             "default": []
           },
+          "is_disqualified": {
+            "type": "boolean",
+            "title": "Is Disqualified",
+            "default": false
+          },
           "members": {
             "anyOf": [
               {
@@ -4383,7 +4388,7 @@
         ],
         "title": "PublicHintRead"
       },
-      "PublicInfo": {
+      "PublicInfoRead": {
         "properties": {
           "branding": {
             "$ref": "#/components/schemas/BrandingInfo"
@@ -4407,6 +4412,11 @@
             },
             "type": "array",
             "title": "Links"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Server Time"
           }
         },
         "type": "object",
@@ -4415,9 +4425,11 @@
           "competition",
           "oauth_providers",
           "captcha",
-          "links"
+          "links",
+          "server_time"
         ],
-        "title": "PublicInfo"
+        "title": "PublicInfoRead",
+        "description": "The public info, stamped with the server's clock when it was served."
       },
       "PublicLinkRead": {
         "properties": {
@@ -5019,6 +5031,11 @@
             "type": "array",
             "title": "Links",
             "default": []
+          },
+          "is_disqualified": {
+            "type": "boolean",
+            "title": "Is Disqualified",
+            "default": false
           },
           "members": {
             "anyOf": [
@@ -5652,7 +5669,7 @@
         "type": "object",
         "title": "Response[PublicHintRead]"
       },
-      "Response_PublicInfo_": {
+      "Response_PublicInfoRead_": {
         "properties": {
           "status": {
             "$ref": "#/components/schemas/ResponseStatus",
@@ -5677,7 +5694,7 @@
           "data": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/PublicInfo"
+                "$ref": "#/components/schemas/PublicInfoRead"
               },
               {
                 "type": "null"
@@ -5686,7 +5703,7 @@
           }
         },
         "type": "object",
-        "title": "Response[PublicInfo]"
+        "title": "Response[PublicInfoRead]"
       },
       "Response_PublicNotificationListResponse_": {
         "properties": {
@@ -6349,6 +6366,7 @@
           "answer": {
             "type": "string",
             "maxLength": 16384,
+            "minLength": 1,
             "title": "Answer"
           }
         },

@@ -19,7 +19,7 @@ The endpoints available to a signed-in player, and to anyone holding an
 API token without administrative scopes. See [How the API works](index.md) for
 authentication, the response envelope, pagination and errors.
 
-*Rendered from `/api/openapi.json` at NexCTF 0.12.4.*
+*Rendered from `/api/openapi.json` at NexCTF 0.12.5.*
 
 !!! info "Reading the scope line"
     Each operation names the [token scope](../documentation/authentication.md#token-scopes)
