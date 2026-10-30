@@ -8398,6 +8398,25 @@
             }
           },
           {
+            "name": "is_disqualified",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Is Disqualified"
+            }
+          },
+          {
             "name": "order_by",
             "in": "query",
             "required": false,
@@ -14549,6 +14568,11 @@
             "title": "Links",
             "default": []
           },
+          "is_disqualified": {
+            "type": "boolean",
+            "title": "Is Disqualified",
+            "default": false
+          },
           "invite_code": {
             "type": "string",
             "title": "Invite Code"
@@ -14730,6 +14754,11 @@
             "type": "array",
             "title": "Links",
             "default": []
+          },
+          "is_disqualified": {
+            "type": "boolean",
+            "title": "Is Disqualified",
+            "default": false
           }
         },
         "type": "object",
@@ -14797,6 +14826,17 @@
               }
             ],
             "title": "Links"
+          },
+          "is_disqualified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Disqualified"
           },
           "custom_fields": {
             "anyOf": [
