@@ -359,6 +359,73 @@
         "description": "**API tokens:** not accepted, this endpoint needs a browser session."
       }
     },
+    "/api/v1/auth/providers/{slug}/link": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Oauth Link",
+        "description": "Start a flow that links the provider identity to the signed-in account.\n\n**API tokens:** not accepted, this endpoint needs a browser session.\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`.",
+        "operationId": "oauth_link_api_v1_auth_providers__slug__link_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          },
+          {
+            "name": "redirect_url",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Redirect Url"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PublicOAuthLinkRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/providers/{slug}/callback": {
       "get": {
         "tags": [
@@ -747,7 +814,7 @@
           "File"
         ],
         "summary": "View Public File",
-        "description": "Redirect to a presigned S3 view URL for a publicly accessible file.\n\n**Authentication:** none required, this endpoint is public.",
+        "description": "Redirect to a presigned S3 URL: shown inline for images, downloaded otherwise.\n\n**Authentication:** none required, this endpoint is public.",
         "operationId": "view_public_file_api_v1_file__uuid__view_get",
         "parameters": [
           {
@@ -3581,6 +3648,17 @@
             ],
             "title": "Email"
           },
+          "email_verified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email Verified"
+          },
           "role": {
             "anyOf": [
               {
@@ -4547,6 +4625,19 @@
           "provider_name"
         ],
         "title": "PublicOAuthAccountRead"
+      },
+      "PublicOAuthLinkRead": {
+        "properties": {
+          "redirect_to": {
+            "type": "string",
+            "title": "Redirect To"
+          }
+        },
+        "type": "object",
+        "required": [
+          "redirect_to"
+        ],
+        "title": "PublicOAuthLinkRead"
       },
       "PublicOAuthProviderRead": {
         "properties": {
@@ -5740,6 +5831,42 @@
         },
         "type": "object",
         "title": "Response[PublicNotificationListResponse]"
+      },
+      "Response_PublicOAuthLinkRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicOAuthLinkRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[PublicOAuthLinkRead]"
       },
       "Response_PublicPageDetail_": {
         "properties": {

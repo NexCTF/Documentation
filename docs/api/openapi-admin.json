@@ -268,6 +268,67 @@
       }
     },
     "/api/v1/admin/bundle/export": {
+      "post": {
+        "tags": [
+          "Bundle"
+        ],
+        "summary": "Issue Export Ticket",
+        "description": "Issue a one-time, short-lived ticket to download an export.\n\n**Required token scope:** `write:admin.bundle`",
+        "operationId": "issue_export_ticket_api_v1_admin_bundle_export_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "include_files",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Include Files"
+            }
+          },
+          {
+            "name": "include_secrets",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Secrets"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AdminBundleExportTicket_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "write:admin.bundle"
+      },
       "get": {
         "tags": [
           "Bundle"
@@ -302,6 +363,22 @@
               "type": "boolean",
               "default": false,
               "title": "Include Secrets"
+            }
+          },
+          {
+            "name": "ticket",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ticket"
             }
           }
         ],
@@ -5061,6 +5138,7 @@
           "OAuthProvider"
         ],
         "summary": "Delete Oauth Provider",
+        "description": "Delete a provider nobody signs in with; a used one can only be deactivated.\n\n**Required token scope:** `write:admin.config`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check.",
         "operationId": "delete_oauth_provider_api_v1_admin_oauth_provider__uuid__delete",
         "security": [
           {
@@ -5104,8 +5182,7 @@
             }
           }
         },
-        "x-token-scope": "write:admin.config",
-        "description": "**Required token scope:** `write:admin.config`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check."
+        "x-token-scope": "write:admin.config"
       }
     },
     "/api/v1/admin/plugins": {
@@ -6897,6 +6974,92 @@
         },
         "x-token-scope": "read:admin.scoreboard",
         "description": "**Required token scope:** `read:admin.scoreboard`"
+      }
+    },
+    "/api/v1/admin/scoreboard/export": {
+      "get": {
+        "tags": [
+          "Admin Scoreboard"
+        ],
+        "summary": "Export Admin Scoreboard",
+        "description": "Download the scoreboard as CSV (selectable columns), JSON or CTFtime JSON.\n\n**Required token scope:** `read:admin.scoreboard`",
+        "operationId": "export_admin_scoreboard_api_v1_admin_scoreboard_export_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ExportFormat",
+              "default": "csv"
+            }
+          },
+          {
+            "name": "columns",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Columns"
+            }
+          },
+          {
+            "name": "bracket",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bracket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:admin.scoreboard"
       }
     },
     "/api/v1/admin/scoreboard/invalidate": {
@@ -10818,6 +10981,19 @@
         "title": "AdminBundleApplyResult",
         "description": "What the apply actually wrote."
       },
+      "AdminBundleExportTicket": {
+        "properties": {
+          "ticket": {
+            "type": "string",
+            "title": "Ticket"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ticket"
+        ],
+        "title": "AdminBundleExportTicket"
+      },
       "AdminBundleManifestRead": {
         "properties": {
           "format_version": {
@@ -12185,6 +12361,8 @@
           },
           "url": {
             "type": "string",
+            "maxLength": 2048,
+            "pattern": "^(?i:https?://|mailto:)[^\\s]+$",
             "title": "Url"
           },
           "visibility": {
@@ -12250,6 +12428,8 @@
           },
           "url": {
             "type": "string",
+            "maxLength": 2048,
+            "pattern": "^(?i:https?://|mailto:)[^\\s]+$",
             "title": "Url"
           },
           "visibility": {
@@ -12742,6 +12922,8 @@
         "properties": {
           "slug": {
             "type": "string",
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
             "title": "Slug"
           },
           "name": {
@@ -12857,7 +13039,9 @@
           "slug": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
               },
               {
                 "type": "null"
@@ -12953,6 +13137,8 @@
         "properties": {
           "slug": {
             "type": "string",
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
             "title": "Slug"
           },
           "title": {
@@ -13053,7 +13239,9 @@
           "slug": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
               },
               {
                 "type": "null"
@@ -14016,12 +14204,22 @@
             "type": "array",
             "title": "Custom Fields",
             "default": []
+          },
+          "export_columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Export Columns",
+            "description": "Every CSV export column id, fixed columns first.",
+            "readOnly": true
           }
         },
         "type": "object",
         "required": [
           "entries",
-          "computed_at"
+          "computed_at",
+          "export_columns"
         ],
         "title": "AdminScoreboard"
       },
@@ -17441,6 +17639,16 @@
         ],
         "title": "EntityKind"
       },
+      "ExportFormat": {
+        "type": "string",
+        "enum": [
+          "csv",
+          "json",
+          "ctftime"
+        ],
+        "title": "ExportFormat",
+        "description": "Supported scoreboard export formats."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -20020,6 +20228,42 @@
         },
         "type": "object",
         "title": "Response[AdminBundleApplyResult]"
+      },
+      "Response_AdminBundleExportTicket_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdminBundleExportTicket"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[AdminBundleExportTicket]"
       },
       "Response_AdminBundlePlanRead_": {
         "properties": {
