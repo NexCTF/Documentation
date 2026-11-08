@@ -153,7 +153,7 @@
           "auth"
         ],
         "summary": "Reset Password",
-        "description": "Consume a single-use password reset token and update the user's password.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "description": "Consume a single-use password reset token and update the user's password.\n\nThe browser that completes the reset becomes a known device of the account.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
         "operationId": "reset_password_api_v1_auth_reset_password_post",
         "requestBody": {
           "content": {
