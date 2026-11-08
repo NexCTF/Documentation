@@ -10708,6 +10708,52 @@
         }
       }
     },
+    "/api/v1/admin/user/{uuid}/login-lockout": {
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Clear Login Lockout",
+        "description": "Forget a user's wrong sign-in guesses so they can sign in again.\n\n**Required token scope:** `write:admin.user`",
+        "operationId": "clear_login_lockout_api_v1_admin_user__uuid__login_lockout_delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "write:admin.user"
+      }
+    },
     "/api/v1/admin/user/{uuid}/password-reset-token": {
       "post": {
         "tags": [
@@ -11235,6 +11281,21 @@
             ],
             "title": "Token Name"
           },
+          "signature_agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signature Agent"
+          },
+          "platform_mismatch": {
+            "type": "boolean",
+            "title": "Platform Mismatch"
+          },
           "first_seen_at": {
             "type": "string",
             "format": "date-time",
@@ -11285,6 +11346,8 @@
           "category",
           "source",
           "token_name",
+          "signature_agent",
+          "platform_mismatch",
           "first_seen_at",
           "last_seen_at",
           "user_id",
@@ -15095,6 +15158,21 @@
             ],
             "title": "Token Name"
           },
+          "signature_agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signature Agent"
+          },
+          "platform_mismatch": {
+            "type": "boolean",
+            "title": "Platform Mismatch"
+          },
           "first_seen_at": {
             "type": "string",
             "format": "date-time",
@@ -15113,6 +15191,8 @@
           "category",
           "source",
           "token_name",
+          "signature_agent",
+          "platform_mismatch",
           "first_seen_at",
           "last_seen_at"
         ],
@@ -15289,6 +15369,11 @@
             "type": "array",
             "title": "Custom Field Values",
             "default": []
+          },
+          "login_locked": {
+            "type": "boolean",
+            "title": "Login Locked",
+            "default": false
           }
         },
         "type": "object",
