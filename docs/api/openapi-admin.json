@@ -12724,14 +12724,7 @@
             "default": "openid profile email roles"
           },
           "allowed_roles": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
             "title": "Allowed Roles"
           },
           "is_active": {
@@ -12743,7 +12736,8 @@
         "type": "object",
         "required": [
           "name",
-          "redirect_uris"
+          "redirect_uris",
+          "allowed_roles"
         ],
         "title": "AdminOAuthClientCreate"
       },
@@ -12782,14 +12776,7 @@
             "title": "Allowed Scopes"
           },
           "allowed_roles": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
             "title": "Allowed Roles"
           },
           "is_active": {
@@ -12866,14 +12853,7 @@
             "title": "Allowed Scopes"
           },
           "allowed_roles": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
             "title": "Allowed Roles"
           },
           "is_active": {
