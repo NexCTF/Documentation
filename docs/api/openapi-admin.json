@@ -221,7 +221,7 @@
           "Backup"
         ],
         "summary": "Restore Backup",
-        "description": "Stop the app, restore the dump, migrate and start again, in the background.\n\nOnly the bundled image can orchestrate this; elsewhere the operator runs\n``manager restore <key>`` with the app stopped.\n\n**Required token scope:** `write:admin.backup`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check.",
+        "description": "Stop the app, restore the dump, migrate and start again, in the background.\n\nOnly the bundled image can orchestrate this; elsewhere the operator runs\n``manager backup restore <key>`` with the app stopped.\n\n**Required token scope:** `write:admin.backup`\n\n**Re-authentication:** the session must have signed in within the last 10 minutes, else `AUTH-REAUTH-REQUIRED`; renew it with `POST /auth/reauth`. API tokens skip this check.",
         "operationId": "restore_backup_api_v1_admin_backup_restore_post",
         "security": [
           {
@@ -1035,6 +1035,120 @@
         },
         "x-token-scope": "write:admin.challenge",
         "description": "**Required token scope:** `write:admin.challenge`"
+      }
+    },
+    "/api/v1/admin/challenge/{uuid}/files": {
+      "get": {
+        "tags": [
+          "Challenge"
+        ],
+        "summary": "Get Challenge Files",
+        "description": "Files attached to the challenge itself, by name.\n\n**Required token scope:** `read:admin.challenge`",
+        "operationId": "get_challenge_files_api_v1_admin_challenge__uuid__files_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_list_AdminFileRead__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:admin.challenge"
+      },
+      "put": {
+        "tags": [
+          "Challenge"
+        ],
+        "summary": "Set Challenge Files",
+        "description": "Replace the challenge's attached files.\n\n**Required token scope:** `write:admin.challenge`",
+        "operationId": "set_challenge_files_api_v1_admin_challenge__uuid__files_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminChallengeFilesUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_list_AdminFileRead__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "write:admin.challenge"
       }
     },
     "/api/v1/admin/page": {
@@ -2581,6 +2695,7 @@
           "File"
         ],
         "summary": "List Files",
+        "description": "Stored files with where each one is used.\n\n**Required token scope:** `read:admin.challenge`",
         "operationId": "list_files_api_v1_admin_file_get",
         "security": [
           {
@@ -2591,6 +2706,59 @@
           }
         ],
         "parameters": [
+          {
+            "name": "usage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FileUsageFilter"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Usage"
+            }
+          },
+          {
+            "name": "challenge_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Challenge Id"
+            }
+          },
+          {
+            "name": "mime_prefix",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mime Prefix"
+            }
+          },
           {
             "name": "pagination_type",
             "in": "query",
@@ -2778,17 +2946,17 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/CursorPaginatedResponse_AdminFileRead_"
+                      "$ref": "#/components/schemas/CursorPaginatedResponse_AdminFileListItem_"
                     },
                     {
-                      "$ref": "#/components/schemas/OffsetPaginatedResponse_AdminFileRead_"
+                      "$ref": "#/components/schemas/OffsetPaginatedResponse_AdminFileListItem_"
                     }
                   ],
                   "discriminator": {
                     "propertyName": "pagination_type",
                     "mapping": {
-                      "cursor": "#/components/schemas/CursorPaginatedResponse_AdminFileRead_",
-                      "offset": "#/components/schemas/OffsetPaginatedResponse_AdminFileRead_"
+                      "cursor": "#/components/schemas/CursorPaginatedResponse_AdminFileListItem_",
+                      "offset": "#/components/schemas/OffsetPaginatedResponse_AdminFileListItem_"
                     }
                   },
                   "title": "Response List Files Api V1 Admin File Get"
@@ -2807,8 +2975,7 @@
             }
           }
         },
-        "x-token-scope": "read:admin.challenge",
-        "description": "**Required token scope:** `read:admin.challenge`"
+        "x-token-scope": "read:admin.challenge"
       },
       "post": {
         "tags": [
@@ -2840,7 +3007,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response_AdminFileRead_"
+                  "$ref": "#/components/schemas/Response_AdminFileUploadRead_"
                 }
               }
             }
@@ -2858,6 +3025,37 @@
         },
         "x-token-scope": "write:admin.challenge",
         "description": "**Required token scope:** `write:admin.challenge`"
+      }
+    },
+    "/api/v1/admin/file/summary": {
+      "get": {
+        "tags": [
+          "File"
+        ],
+        "summary": "Get Files Summary",
+        "description": "File count, total size and unused count.\n\n**Required token scope:** `read:admin.challenge`",
+        "operationId": "get_files_summary_api_v1_admin_file_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AdminFileSummary_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "x-token-scope": "read:admin.challenge"
       }
     },
     "/api/v1/admin/file/{uuid}": {
@@ -2995,6 +3193,16 @@
               "type": "string",
               "format": "uuid",
               "title": "Uuid"
+            }
+          },
+          {
+            "name": "force",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Force"
             }
           }
         ],
@@ -11128,6 +11336,24 @@
         "title": "AdminBundlePlanRead",
         "description": "A reviewable plan, plus the staged key ``apply`` re-derives it from."
       },
+      "AdminChallengeFilesUpdate": {
+        "properties": {
+          "file_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "File Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file_ids"
+        ],
+        "title": "AdminChallengeFilesUpdate",
+        "description": "The full set of files to attach to a challenge."
+      },
       "AdminChallengeRead": {
         "properties": {
           "id": {
@@ -12122,6 +12348,17 @@
             "type": "boolean",
             "title": "Is Public"
           },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sha256"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -12156,6 +12393,96 @@
           "download_url"
         ],
         "title": "AdminFileDetail"
+      },
+      "AdminFileListItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "s3_key": {
+            "type": "string",
+            "title": "S3 Key"
+          },
+          "original_filename": {
+            "type": "string",
+            "title": "Original Filename"
+          },
+          "mime_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mime Type"
+          },
+          "file_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Size"
+          },
+          "is_public": {
+            "type": "boolean",
+            "title": "Is Public"
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sha256"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "usages": {
+            "items": {
+              "$ref": "#/components/schemas/FileUsage"
+            },
+            "type": "array",
+            "title": "Usages",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "s3_key",
+          "original_filename",
+          "mime_type",
+          "file_size",
+          "is_public",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "AdminFileListItem",
+        "description": "A stored file with its usages."
       },
       "AdminFileRead": {
         "properties": {
@@ -12202,6 +12529,17 @@
             "type": "boolean",
             "title": "Is Public"
           },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sha256"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -12226,6 +12564,120 @@
           "updated_at"
         ],
         "title": "AdminFileRead"
+      },
+      "AdminFileSummary": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "total_size": {
+            "type": "integer",
+            "title": "Total Size"
+          },
+          "unused_count": {
+            "type": "integer",
+            "title": "Unused Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "count",
+          "total_size",
+          "unused_count"
+        ],
+        "title": "AdminFileSummary",
+        "description": "Totals over every stored file."
+      },
+      "AdminFileUploadRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "s3_key": {
+            "type": "string",
+            "title": "S3 Key"
+          },
+          "original_filename": {
+            "type": "string",
+            "title": "Original Filename"
+          },
+          "mime_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mime Type"
+          },
+          "file_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Size"
+          },
+          "is_public": {
+            "type": "boolean",
+            "title": "Is Public"
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sha256"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "duplicates": {
+            "items": {
+              "$ref": "#/components/schemas/AdminFileRead"
+            },
+            "type": "array",
+            "title": "Duplicates",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "s3_key",
+          "original_filename",
+          "mime_type",
+          "file_size",
+          "is_public",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "AdminFileUploadRead",
+        "description": "An uploaded file with the stored files sharing its content."
       },
       "AdminHintCreate": {
         "properties": {
@@ -13507,6 +13959,18 @@
             ],
             "title": "Malus"
           },
+          "max_attempts": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Attempts"
+          },
           "input_type": {
             "$ref": "#/components/schemas/InputType",
             "default": "input"
@@ -13581,6 +14045,17 @@
               }
             ],
             "title": "Malus"
+          },
+          "max_attempts": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Attempts"
           },
           "input_type": {
             "$ref": "#/components/schemas/InputType",
@@ -13709,6 +14184,18 @@
               }
             ],
             "title": "Malus"
+          },
+          "max_attempts": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Attempts"
           },
           "input_type": {
             "anyOf": [
@@ -16294,7 +16781,7 @@
         ],
         "title": "CursorPaginatedResponse[AdminFeedbackRead]"
       },
-      "CursorPaginatedResponse_AdminFileRead_": {
+      "CursorPaginatedResponse_AdminFileListItem_": {
         "properties": {
           "status": {
             "$ref": "#/components/schemas/ResponseStatus",
@@ -16318,7 +16805,7 @@
           },
           "data": {
             "items": {
-              "$ref": "#/components/schemas/AdminFileRead"
+              "$ref": "#/components/schemas/AdminFileListItem"
             },
             "type": "array",
             "title": "Data"
@@ -16381,7 +16868,7 @@
           "data",
           "pagination"
         ],
-        "title": "CursorPaginatedResponse[AdminFileRead]"
+        "title": "CursorPaginatedResponse[AdminFileListItem]"
       },
       "CursorPaginatedResponse_AdminHintRead_": {
         "properties": {
@@ -17714,6 +18201,72 @@
         "title": "ExportFormat",
         "description": "Supported scoreboard export formats."
       },
+      "FileUsage": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/FileUsageKind"
+          },
+          "target_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "challenge_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Challenge Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "label"
+        ],
+        "title": "FileUsage",
+        "description": "A place a stored file is linked or referenced from."
+      },
+      "FileUsageFilter": {
+        "type": "string",
+        "enum": [
+          "used",
+          "unused"
+        ],
+        "title": "FileUsageFilter",
+        "description": "Whether a file listing keeps the used or the unused files."
+      },
+      "FileUsageKind": {
+        "type": "string",
+        "enum": [
+          "challenge",
+          "question",
+          "challenge_text",
+          "question_text",
+          "hint_text",
+          "page_text",
+          "notification_text",
+          "config"
+        ],
+        "title": "FileUsageKind",
+        "description": "Where a stored file is used: a link table or a text reference."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -18222,7 +18775,7 @@
         ],
         "title": "OffsetPaginatedResponse[AdminFeedbackRead]"
       },
-      "OffsetPaginatedResponse_AdminFileRead_": {
+      "OffsetPaginatedResponse_AdminFileListItem_": {
         "properties": {
           "status": {
             "$ref": "#/components/schemas/ResponseStatus",
@@ -18246,7 +18799,7 @@
           },
           "data": {
             "items": {
-              "$ref": "#/components/schemas/AdminFileRead"
+              "$ref": "#/components/schemas/AdminFileListItem"
             },
             "type": "array",
             "title": "Data"
@@ -18309,7 +18862,7 @@
           "data",
           "pagination"
         ],
-        "title": "OffsetPaginatedResponse[AdminFileRead]"
+        "title": "OffsetPaginatedResponse[AdminFileListItem]"
       },
       "OffsetPaginatedResponse_AdminHintRead_": {
         "properties": {
@@ -20546,6 +21099,78 @@
         "type": "object",
         "title": "Response[AdminFileRead]"
       },
+      "Response_AdminFileSummary_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdminFileSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[AdminFileSummary]"
+      },
+      "Response_AdminFileUploadRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdminFileUploadRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[AdminFileUploadRead]"
+      },
       "Response_AdminHintReadDetail_": {
         "properties": {
           "status": {
@@ -21440,6 +22065,46 @@
         },
         "type": "object",
         "title": "Response[list[AdminConfigRead]]"
+      },
+      "Response_list_AdminFileRead__": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/AdminFileRead"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "title": "Response[list[AdminFileRead]]"
       },
       "Response_list_AdminPluginRead__": {
         "properties": {

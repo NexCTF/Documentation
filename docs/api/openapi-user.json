@@ -808,6 +808,67 @@
         "x-token-scope": "write:challenge"
       }
     },
+    "/api/v1/challenges/{challenge_id}/files/{file_id}": {
+      "get": {
+        "tags": [
+          "Challenges"
+        ],
+        "summary": "Download Challenge File",
+        "description": "Redirect to a fresh download URL for a file the caller can see.\n\n**Required token scope:** `read:challenge`",
+        "operationId": "download_challenge_file_api_v1_challenges__challenge_id__files__file_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "APIKeyCookie_NexCTF": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "challenge_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Challenge Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-token-scope": "read:challenge"
+      }
+    },
     "/api/v1/file/{uuid}/view": {
       "get": {
         "tags": [
@@ -848,28 +909,6 @@
             }
           }
         }
-      }
-    },
-    "/api/v1/info": {
-      "get": {
-        "tags": [
-          "info"
-        ],
-        "summary": "Public Info",
-        "operationId": "public_info_api_v1_info_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_PublicInfoRead_"
-                }
-              }
-            }
-          }
-        },
-        "description": "**Authentication:** none required, this endpoint is public."
       }
     },
     "/api/v1/info/me": {
@@ -2574,6 +2613,85 @@
         },
         "description": "**API tokens:** not accepted, this endpoint needs a browser session."
       }
+    },
+    "/api/v1/info": {
+      "get": {
+        "tags": [
+          "info"
+        ],
+        "summary": "Public Info",
+        "operationId": "public_info_api_v1_info_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_PublicInfoRead_"
+                }
+              }
+            }
+          }
+        },
+        "description": "**Authentication:** none required, this endpoint is public."
+      }
+    },
+    "/api/v1/setup": {
+      "get": {
+        "tags": [
+          "setup"
+        ],
+        "summary": "Setup Status",
+        "description": "Whether the instance still waits for its first admin.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "setup_status_api_v1_setup_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_SetupStatusRead_"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/setup/admin": {
+      "post": {
+        "tags": [
+          "setup"
+        ],
+        "summary": "First Admin",
+        "description": "Create the first admin with the setup token and sign them in.\n\n**API tokens:** not accepted, this endpoint needs a browser session.",
+        "operationId": "first_admin_api_v1_setup_admin_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetupAdminCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4240,6 +4358,14 @@
             "type": "boolean",
             "title": "Sequential"
           },
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/PublicFileRead"
+            },
+            "type": "array",
+            "title": "Files",
+            "default": []
+          },
           "questions": {
             "items": {
               "$ref": "#/components/schemas/PublicQuestionRead"
@@ -4427,6 +4553,17 @@
               }
             ],
             "title": "File Size"
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sha256"
           },
           "url": {
             "type": "string",
@@ -4789,6 +4926,17 @@
               }
             ],
             "title": "Malus"
+          },
+          "attempts_left": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempts Left"
           },
           "input_type": {
             "$ref": "#/components/schemas/InputType",
@@ -6102,6 +6250,42 @@
         "type": "object",
         "title": "Response[ScoreboardHistory]"
       },
+      "Response_SetupStatusRead_": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus",
+            "default": "SUCCESS"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Success"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SetupStatusRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Response[SetupStatusRead]"
+      },
       "Response_SubmitResult_": {
         "properties": {
           "status": {
@@ -6506,6 +6690,60 @@
         ],
         "title": "ScoreboardHistory"
       },
+      "SetupAdminCreate": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 8,
+            "title": "Password"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "email"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password",
+          "token"
+        ],
+        "title": "SetupAdminCreate",
+        "description": "The first admin's account, with the console setup token."
+      },
+      "SetupStatusRead": {
+        "properties": {
+          "admin_required": {
+            "type": "boolean",
+            "title": "Admin Required"
+          }
+        },
+        "type": "object",
+        "required": [
+          "admin_required"
+        ],
+        "title": "SetupStatusRead",
+        "description": "Whether the instance still waits for its first admin."
+      },
       "SubmitBody": {
         "properties": {
           "answer": {
@@ -6534,6 +6772,17 @@
           "points_earned": {
             "type": "integer",
             "title": "Points Earned"
+          },
+          "attempts_left": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempts Left"
           }
         },
         "type": "object",
