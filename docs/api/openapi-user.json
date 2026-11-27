@@ -2325,7 +2325,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 512
                 },
                 {
                   "type": "null"
@@ -2628,16 +2629,19 @@
         "properties": {
           "username": {
             "type": "string",
+            "maxLength": 128,
             "title": "Username"
           },
           "password": {
             "type": "string",
+            "maxLength": 1024,
             "title": "Password"
           },
           "totp_code": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 16
               },
               {
                 "type": "null"
@@ -2648,7 +2652,8 @@
           "captcha_token": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 4096
               },
               {
                 "type": "null"
@@ -3172,7 +3177,8 @@
             "additionalProperties": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 255
                 },
                 {
                   "type": "null"
@@ -3183,6 +3189,7 @@
               "format": "uuid"
             },
             "type": "object",
+            "maxProperties": 100,
             "title": "Custom Fields",
             "default": {}
           }
@@ -3265,7 +3272,8 @@
             "additionalProperties": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 255
                 },
                 {
                   "type": "null"
@@ -3276,6 +3284,7 @@
               "format": "uuid"
             },
             "type": "object",
+            "maxProperties": 100,
             "title": "Custom Fields",
             "default": {}
           }
@@ -3415,21 +3424,25 @@
         "properties": {
           "client_id": {
             "type": "string",
+            "maxLength": 128,
             "title": "Client Id"
           },
           "redirect_uri": {
             "type": "string",
+            "maxLength": 2048,
             "title": "Redirect Uri"
           },
           "scope": {
             "type": "string",
+            "maxLength": 512,
             "title": "Scope",
             "default": "openid profile"
           },
           "state": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 512
               },
               {
                 "type": "null"
@@ -3440,7 +3453,8 @@
           "code_challenge": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 128
               },
               {
                 "type": "null"
@@ -3451,7 +3465,8 @@
           "code_challenge_method": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 16
               },
               {
                 "type": "null"
@@ -4044,7 +4059,8 @@
           "name": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 64
               },
               {
                 "type": "null"
@@ -4066,9 +4082,11 @@
           },
           "scopes": {
             "items": {
-              "type": "string"
+              "type": "string",
+              "maxLength": 64
             },
             "type": "array",
+            "maxItems": 64,
             "title": "Scopes"
           }
         },
@@ -6623,6 +6641,8 @@
         "properties": {
           "code": {
             "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
             "title": "Code"
           }
         },
