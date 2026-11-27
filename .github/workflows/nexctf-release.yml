@@ -10,7 +10,7 @@ on:
       plugins:
         description: Plugins installed for the screenshots (NEXCTF_PLUGINS)
         required: false
-        default: nexctf-sandbox==1.0.0
+        default: nexctf-sandbox
 permissions:
   contents: write
   pull-requests: write
